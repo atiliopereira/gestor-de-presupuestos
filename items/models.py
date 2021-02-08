@@ -1,17 +1,19 @@
 from django.db import models
 from materiales.models import UnidadDeMedida, Material
 
-class Rubro(models.Model)
+
+class Rubro(models.Model):
     class Meta:
         verbose_name = "rubro"
         verbose_name_plural = "rubros"
 
-    nombre = nombre = models.CharField(max_length=200)
+    nombre = nombre = models.CharField(max_length = 200)
 
     def __str__(self):
         return f'{self.nombre}'
 
-class Item(models.Model)
+
+class Item(models.Model):
     class Meta:
         verbose_name = "ítem"
         verbose_name_plural = "ítems"
@@ -23,8 +25,9 @@ class Item(models.Model)
     def __str__(self):
         return f'{self.descripcion}'
 
-class DetalleDeItem
-    lass Meta:
+
+class DetalleDeItem(models.Model):
+    class Meta:
         verbose_name = "detalle de ítem"
         verbose_name_plural = "detalles de ítem"
 
@@ -32,4 +35,4 @@ class DetalleDeItem
     coeficiente = models.FloatField()
 
     def __str__(self):
-        return f'{material}'
+        return f'{self.material}'
