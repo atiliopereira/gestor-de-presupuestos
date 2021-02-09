@@ -13,6 +13,7 @@ class ItemAdmin(admin.ModelAdmin):
     ordering = ("descripcion",)
     list_display = ("descripcion", "unidad_de_medida", "rubro")
     search_fields = ("descripcion", "rubro")
+    autocomplete_fields = ("rubro",)
 
 admin.site.register(Item, ItemAdmin)
 
@@ -22,3 +23,8 @@ class DetalleDeItemAdmin(admin.ModelAdmin):
     search_fields = ("material",)
 
 admin.site.register(DetalleDeItem, DetalleDeItemAdmin)
+
+#class DetelleDeItemInlineAdmin(admin.TabularInline):
+#    model = DetalleDeItem
+#    autocomplete_fields = ("material",)
+#    extra = 0
