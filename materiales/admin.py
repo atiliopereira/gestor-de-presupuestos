@@ -13,7 +13,7 @@ admin.site.register(UnidadDeMedida, UnidadDeMedidaAdmin)
 
 
 class CategoriaDeMaterialAdmin(admin.ModelAdmin):
-    list_display = ('id', 'nombre', 'categoria_principal')
+    list_display = ('id', 'nombre', 'get_categoria_principal')
     search_fields = ('nombre', 'categoria', )
     ordering = ('nombre', )
 
