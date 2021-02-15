@@ -1,0 +1,63 @@
+{% extends "admin/index.html" %}
+
+{% load i18n %}
+
+{% block bodyclass %}{{ block.super }} app-{{ app_label }}{% endblock %}
+
+{% if not is_popup %}
+{% block breadcrumbs %}
+<div class="breadcrumbs">
+<a href="{% url 'admin:index' %}">{% trans 'Home' %}</a>
+&rsaquo;
+{% for app in app_list %}
+{{ app.name }}
+{% endfor %}
+</div>
+{% endblock %}
+{% endif %}
+
+
+{% block content %}
+<div id="content-main">
+
+{% if app_list %}
+    {% for app in app_list %}
+        <div class="app-{{ app.app_label }} module" style="width: 200%;">
+            <center>
+                <table style="width: 60%">
+                    <caption style="text-align: center; font-weight: bold">
+                        <a href="{{ app.app_url }}"  class="section" title="{% blocktrans with name=app.name %}Models in the {{ name }} application{% endblocktrans %}" style="font-size: 20px">{{ app.name }}</a>
+                    </caption>
+                    {% for model in app.models %}
+                        <tr class="model-{{ model.object_name|lower }}" style="height: 50px; ">
+                        {% if model.admin_url %}
+                            <th scope="row" style="text-align: center; vertical-align: middle"><a href="{{ model.admin_url }}" style="font-size: 20px">{{ model.name|upper }}</a></th>
+                        {% else %}
+                            <th scope="row" style="text-align: center; vertical-align: middle" >{{ model.name }}</th>
+                        {% endif %}
+                        </tr>
+                    {% endfor %}
+                    {% if app.app_label == 'sistema'%}
+                        <tr class="model-venta" style="height: 50px; ">
+                            <th scope="row" style="text-align: center; vertical-align: middle">
+                                <a href="/admin/auth/group/" style="font-size: 20px">GRUPOS DE USUARIOS</a>
+                            </th>
+                        </tr>
+                        <tr class="model-venta" style="height: 50px; ">
+                            <th scope="row" style="text-align: center; vertical-align: middle">
+                                <a href="/admin/auth/user/" style="font-size: 20px">USUARIOS</a>
+                            </th>
+                        </tr>
+                    {% endif %}
+                </table>
+            </center>
+        </div>
+    {% endfor %}
+{% else %}
+    <p>{% trans "You don't have permission to edit anything." %}</p>
+{% endif %}
+</div>
+{% endblock %}
+
+
+{% block sidebar %}{% endblock %}
