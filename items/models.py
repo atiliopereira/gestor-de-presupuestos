@@ -3,7 +3,6 @@ from materiales.models import UnidadDeMedida, Material
 
 
 class Rubro(models.Model):
-
     nombre = nombre = models.CharField(max_length = 200)
 
     def __str__(self):
