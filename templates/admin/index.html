@@ -1,0 +1,43 @@
+{% extends "admin/base_site.html" %}
+{% load i18n static %}
+
+{% block extrastyle %}{{ block.super }}
+    <link rel="stylesheet" type="text/css" href="{% static "admin/css/dashboard.css" %}" />
+    <link rel="stylesheet" href="{% static 'bootstrap-3.3.6-dist/css/bootstrap.min.css' %}">
+    <!-- Custom CSS for dashboard -->
+    <link rel="stylesheet" href="{% static 'dist/css/style.min.css' %}">
+
+{% endblock %}
+
+{% block coltype %}colMS{% endblock %}
+
+{% block bodyclass %}{{ block.super }} dashboard{% endblock %}
+
+{% block breadcrumbs %}{% endblock %}
+
+{% block content %}
+<div  style="text-align: center" style="text-align: center; width: 200%">
+
+{% if app_list %}
+       <tr>
+    {% for app in app_list %}
+        {% if forloop.counter0|divisibleby:4 %}
+
+            </tr>
+            <tr>
+        {% endif %}
+
+        <td style="width: 200px">
+
+        </td>
+
+
+    {% endfor %}
+       </tr>
+
+{% else %}
+    <p>{% trans "You don't have permission to edit anything." %}</p>
+{% endif %}
+</div>
+{% endblock %}
+
