@@ -1,16 +1,12 @@
-{% extends "admin/base_site.html" %}
-{% load i18n static %}
-
-{% block extrastyle %}{{ block.super }}
-    <style>
-        th { background-color: #0F0; }
-        table, td, tr { border: 1px solid black; }
-        table { border-collapse: collapse; }
-        tbody tr:first-child { background-color: yellow; }
-    </style>
-{% endblock %}
-
-<h2>Historial de precios</h2>
+<div id="det-mat">
+<h3>Precio actual: 
+    {% if precio_actual %}
+        {{ precio_actual }}
+    {% else %}
+        No especificado
+    {% endif %}
+</h3>
+<h3>Historial de precios</h3>
 
 {% if precios %}
     <table>
@@ -20,18 +16,31 @@
     </thead>
     <tbody>
         {% for precio in precios %}
-        <tr>
+        <tr {% if  precio.es_actual %}
+                style="background-color: rgb(94, 255, 0)"
+            {% endif %} >
             <td>{{ precio.inicio_de_vigencia|date:"d/m/Y" }}</td>
-            <td>
-                {% if precio.fin_de_vigencia %}
-                    {{ precio.fin_de_vigencia|date:"d/m/Y" }}</td>
-                {% else %}
-                    -
-                {% endif %}
+            <td>{{ precio.fin_de_vigencia|date:"d/m/Y" }}</td>
             </td>
             <td>{{ precio.precio }}</td>
         </tr>
         {% endfor %}
-    </tbody>>
+    </tbody>
     </table>
+
+    {% autoescape off %}
+    <script>
+        
+            let style = document.createElement("style");
+            document.head.appendChild(style);
+            style.innerText = 
+            "#det-mat { font-family: sans-serif; } " +
+            "th { background-color: #AAA; border: 1px solid black; } " +
+            "tr { border: 1px solid black; } " +
+            "table { border-collapse: collapse; } " +
+            "body tr:nth-child(odd) { background-color: #EEF; } " +
+            "#det-mat td { text-align: right; border: 1px solid black; padding: 5px; }" +
+            "#det-mat th { padding: 6px; }";
+    </script>
+    {% endautoescape %}
 {% endif %}

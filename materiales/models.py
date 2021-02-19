@@ -61,8 +61,7 @@ class PrecioDeMaterial(models.Model):
     fin_de_vigencia = models.DateField(blank=True, editable=False)
 
 
-#TODO TEST
-def get_precio_de_material(self, **kwargs):
+def get_precio_de_material(**kwargs):
     material = kwargs.get("material")
     if not material:
         return None
@@ -71,4 +70,4 @@ def get_precio_de_material(self, **kwargs):
         precios = PrecioDeMaterial.objects.filter(material=material).order_by('-inicio_de_vigencia')
         for precio in precios:
             if precio.inicio_de_vigencia < fecha:
-                return precio.precio
+                return precio
