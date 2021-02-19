@@ -12,6 +12,7 @@ class RubroAdmin(admin.ModelAdmin):
     list_display = ("nombre",)
     ordering = ("nombre",)
     search_fields = ("nombre",)
+    actions = None
 
 
 admin.site.register(Rubro, RubroAdmin)
@@ -23,6 +24,7 @@ class ItemAdmin(admin.ModelAdmin):
     search_fields = ("descripcion", "rubro")
     autocomplete_fields = ("rubro",)
     inlines = (DetalleDeItemInlineAdmin,)
+    actions = None
 
 
 admin.site.register(Item, ItemAdmin)
