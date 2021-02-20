@@ -23,7 +23,7 @@ admin.site.register(CategoriaDeMaterial, CategoriaDeMaterialAdmin)
 
 
 class MaterialAdmin(admin.ModelAdmin):
-    list_display = ('descripcion', 'unidad_de_medida', 'categoria', 'ver', 'editar')
+    list_display = ('editar', 'descripcion', 'unidad_de_medida', 'categoria', 'ver')
     search_fields = ('descripcion', )
     list_filter = ('categoria', )
 
