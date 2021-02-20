@@ -1,6 +1,8 @@
 import datetime
+
 from django.shortcuts import render
 from django.views.generic import DetailView
+
 from materiales.models import Material, PrecioDeMaterial, get_precio_de_material
 
 class MaterialDetailView(DetailView):

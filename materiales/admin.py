@@ -1,4 +1,5 @@
 from django.contrib import admin
+from django.utils.safestring import mark_safe
 
 from materiales.models import UnidadDeMedida, CategoriaDeMaterial, Material
 
@@ -22,9 +23,23 @@ admin.site.register(CategoriaDeMaterial, CategoriaDeMaterialAdmin)
 
 
 class MaterialAdmin(admin.ModelAdmin):
-    list_display = ('descripcion', 'unidad_de_medida', 'categoria')
+    list_display = ('descripcion', 'unidad_de_medida', 'categoria', 'ver', 'editar')
     search_fields = ('descripcion', )
     list_filter = ('categoria', )
+
+    def editar(self, obj):
+        html = '<a href="/admin/materiales/material/%s" '
+        html += 'class="icon-block"> <i class="fa fa-edit"></i></a>'
+        html %= obj.pk
+
+        return mark_safe(html)
+
+    def ver(self, obj):
+        html = '<a href="/admin/materiales/material_detail/%s" '
+        html += 'class="icon-block"> <i class="fa fa-eye"></i></a>'
+        html %= obj.pk
+
+        return mark_safe(html)
 
 
 admin.site.register(Material, MaterialAdmin)
