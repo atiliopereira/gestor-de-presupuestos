@@ -1,4 +1,5 @@
 from django.contrib import admin
+from materiales.models import ActualizacionDePrecios
 from django.utils.safestring import mark_safe
 
 from materiales.models import UnidadDeMedida, CategoriaDeMaterial, Material
@@ -17,15 +18,18 @@ class CategoriaDeMaterialAdmin(admin.ModelAdmin):
     list_display = ('id', 'nombre', 'get_categoria_principal')
     search_fields = ('nombre', 'categoria', )
     ordering = ('nombre', )
+    autocomplete_fields = ('categoria_padre',)
+    actions = None
 
 
 admin.site.register(CategoriaDeMaterial, CategoriaDeMaterialAdmin)
 
 
 class MaterialAdmin(admin.ModelAdmin):
-    list_display = ('editar', 'descripcion', 'unidad_de_medida', 'categoria', 'ver')
+    list_display = ('editar', 'ver', 'codigo', 'descripcion', 'unidad_de_medida', 'categoria', 'precio_actual')
     search_fields = ('descripcion', )
     list_filter = ('categoria', )
+    actions = None
 
     def editar(self, obj):
         html = '<a href="/admin/materiales/material/%s" '
@@ -43,3 +47,11 @@ class MaterialAdmin(admin.ModelAdmin):
 
 
 admin.site.register(Material, MaterialAdmin)
+
+
+class ActualizacionDePreciosAdmin(admin.ModelAdmin):
+    list_display = ('fecha', )
+    actions = None
+
+
+admin.site.register(ActualizacionDePrecios, ActualizacionDePreciosAdmin)
