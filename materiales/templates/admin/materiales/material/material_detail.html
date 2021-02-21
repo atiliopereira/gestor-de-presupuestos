@@ -1,46 +1,93 @@
-<div id="det-mat">
-<h3>Precio actual: 
-    {% if precio_actual %}
-        {{ precio_actual }}
-    {% else %}
-        No especificado
+{% extends "admin/base_site.html" %}
+
+{% block breadcrumbs %}
+
+    <div class="breadcrumbs">
+        <a href="{% url 'admin:index' %}">Inicio</a>
+        &rsaquo; <a href="{% url 'admin:app_list' 'materiales' %}">Materiales</a>
+        &rsaquo; <a href="/admin/materiales/material">Lista de materiales</a>
+        &rsaquo; Detalle de material
+    </div>
+
+{% endblock %}
+
+{% block extrastyle %}
+    <link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
+{% endblock %}
+
+{% block content %}
+    <style>
+        .w3-card-4 {
+          margin-bottom: 1%;
+        }
+        table {
+            width:100%;
+        }
+        tbody{
+            width: 100%;
+            display: table;
+        }
+        .label {
+            color: white;
+            padding: 8px;
+            font-weight: bold;
+            font-size: x-large;
+            border-radius: 5px;
+        }
+    </style>
+    <div style="width:30%;margin-left:auto;margin-right:auto;">
+        <table>
+            <tr>
+                <td>
+                    <h1 style="text-align:left; color: black">{{ object.descripcion }}</h1>
+                </td>
+                <td>
+                    <h3 style= "color: dodgerblue">
+                        Gs. {{ precio_material_hoy }}
+                    </h3>
+                    <p style= "color: dodgerblue">al {{ hoy }}</p>
+                </td>
+            </tr>
+        </table>
+    </div>
+
+
+    <caption>
+        <h4 style="text-align:center">Historial de precios</h4>
+    </caption>
+    {% if precios %}
+        <div id="det-mat" class="w3-card-4" style="width:60%;margin-left:auto;margin-right:auto;">
+            <table style="width: 100%">
+                <tr><th colspan="2">Vigencia</th><th rowspan="2">Precio</th></tr>
+                <tr><th>Inicio</th><th>Fin</th></tr>
+
+                {% for precio in precios %}
+                <tr {% if  precio.es_actual %}
+                        style="background-color: rgb(94, 255, 0)"
+                    {% endif %} >
+                    <td>{{ precio.inicio_de_vigencia|date:"d/m/Y" }}</td>
+                    <td>{{ precio.fin_de_vigencia|date:"d/m/Y" }}</td>
+                    </td>
+                    <td>{{ precio.precio }}</td>
+                </tr>
+                {% endfor %}
+            </table>
+        </div>
+
+        {% autoescape off %}
+            <script>
+                    let style = document.createElement("style");
+                    document.head.appendChild(style);
+                    style.innerText =
+                    "#det-mat { font-family: sans-serif; } " +
+                    "#det-mat th { background-color: #AAA; border: 1px solid black; } " +
+                    "#det-mat tr { border: 1px solid black; } " +
+                    "#det-mat table { border-collapse: collapse; } " +
+                    "#det-mat tbody tr:nth-child(odd) { background-color: #EEF; } " +
+                    "#det-mat td { text-align: right; border: 1px solid black; padding: 5px; }" +
+                    "#det-mat th { padding: 6px; }";
+            </script>
+        {% endautoescape %}
     {% endif %}
-</h3>
-<h3>Historial de precios</h3>
 
-{% if precios %}
-    <table>
-    <thead>
-        <tr><th colspan="2">Vigencia</th><th rowspan="2">Precio</th></tr>
-        <tr><th>Inicio</th><th>Fin</fin></th></tr>
-    </thead>
-    <tbody>
-        {% for precio in precios %}
-        <tr {% if  precio.es_actual %}
-                style="background-color: rgb(94, 255, 0)"
-            {% endif %} >
-            <td>{{ precio.inicio_de_vigencia|date:"d/m/Y" }}</td>
-            <td>{{ precio.fin_de_vigencia|date:"d/m/Y" }}</td>
-            </td>
-            <td>{{ precio.precio }}</td>
-        </tr>
-        {% endfor %}
-    </tbody>
-    </table>
-
-    {% autoescape off %}
-    <script>
-        
-            let style = document.createElement("style");
-            document.head.appendChild(style);
-            style.innerText = 
-            "#det-mat { font-family: sans-serif; } " +
-            "#det-mat th { background-color: #AAA; border: 1px solid black; } " +
-            "#det-mat tr { border: 1px solid black; } " +
-            "#det-mat table { border-collapse: collapse; } " +
-            "#det-mat tbody tr:nth-child(odd) { background-color: #EEF; } " +
-            "#det-mat td { text-align: right; border: 1px solid black; padding: 5px; }" +
-            "#det-mat th { padding: 6px; }";
-    </script>
-    {% endautoescape %}
-{% endif %}
+{% endblock %}

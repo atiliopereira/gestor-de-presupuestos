@@ -11,16 +11,8 @@ class MaterialDetailView(DetailView):
 
     def get_context_data(self, **kwargs):
         context = super(MaterialDetailView, self).get_context_data(**kwargs)
-        lista = PrecioDeMaterial.objects.filter(material=self.object).order_by("-inicio_de_vigencia")
-        context["precios"] = lista
-        precio_mat_hoy = get_precio_de_material(material=self.object)
-        
-        if precio_mat_hoy:
-            context["precio_actual"] = precio_mat_hoy.precio
-            for index in range(0, len(lista)):
-                if precio_mat_hoy == lista[index]:
-                    lista[index].es_actual = True
-                    break
-        
+        context["precios"] = PrecioDeMaterial.objects.filter(material=self.object).order_by("-inicio_de_vigencia")
+        context["precio_material_hoy"] = self.object.precio_actual()
+        context["hoy"] = datetime.date.today()
         return context
 
