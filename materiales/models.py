@@ -1,7 +1,7 @@
 import datetime
 import os
 
-import xlrd
+#import xlrd
 from django.db import models
 
 
@@ -57,7 +57,8 @@ class Material(models.Model):
         return f'{self.descripcion}'
 
     def precio_actual(self):
-        return get_precio_de_material(material=self).precio if get_precio_de_material(material=self) else "No establecido"
+        precio_mat   = get_precio_de_material(material=self)
+        return precio_mat.precio if precio_mat else "No establecido"
 
 
 class PrecioDeMaterial(models.Model):
