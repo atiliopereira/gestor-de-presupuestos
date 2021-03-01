@@ -1,7 +1,7 @@
 import datetime
 import os
 
-import xlrd
+#import xlrd
 from django.db import models
 
 
@@ -57,7 +57,8 @@ class Material(models.Model):
         return f'{self.descripcion}'
 
     def precio_actual(self):
-        return get_precio_de_material(self)
+        precio_mat   = get_precio_de_material(material=self)
+        return precio_mat.precio if precio_mat else "No establecido"
 
 
 class PrecioDeMaterial(models.Model):
@@ -66,8 +67,8 @@ class PrecioDeMaterial(models.Model):
     inicio_de_vigencia = models.DateField(default=datetime.date.today)
     fin_de_vigencia = models.DateField(null=True, blank=True, editable=False)
 
-#TODO TEST
-def get_precio_de_material(self, **kwargs):
+
+def get_precio_de_material(**kwargs):
     material = kwargs.get("material")
     if not material:
         return None
@@ -76,7 +77,7 @@ def get_precio_de_material(self, **kwargs):
         precios = PrecioDeMaterial.objects.filter(material=material).order_by('-inicio_de_vigencia')
         for precio in precios:
             if precio.inicio_de_vigencia < fecha:
-                return precio.precio
+                return precio
 
 
 def get_file_path(instance, filename):
