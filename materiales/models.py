@@ -1,7 +1,7 @@
 import datetime
 import os
 
-#import xlrd
+import xlrd
 from django.db import models
 
 
@@ -54,10 +54,10 @@ class Material(models.Model):
     categoria = models.ForeignKey(CategoriaDeMaterial, on_delete=models.PROTECT, verbose_name="categoría")
 
     def __str__(self):
-        return f'{self.descripcion}'
+        return f'{self.descripcion} ({self.categoria.nombre})'
 
     def precio_actual(self):
-        precio_mat   = get_precio_de_material(material=self)
+        precio_mat = get_precio_de_material(material=self)
         return precio_mat.precio if precio_mat else "No establecido"
 
 
@@ -80,7 +80,7 @@ def get_precio_de_material(**kwargs):
                 return precio
 
 
-def get_file_path(instance, filename):
+def get_file_path(instance):
     file_path = f'archivos/planilla_de_precios_{instance.fecha}'
     return file_path
 
@@ -88,7 +88,7 @@ def get_file_path(instance, filename):
 def actualizar_precios(actualizacion_de_precios):
     extension = os.path.splitext(actualizacion_de_precios.archivo.path)[-1].lower()
     if extension == ".xls" or extension == ".xlsx":
-        doc = (actualizacion_de_precios.archivo.path)
+        doc = actualizacion_de_precios.archivo.path
         try:
             wb = xlrd.open_workbook(doc)
             sheet = wb.sheet_by_index(0)
