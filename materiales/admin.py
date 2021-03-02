@@ -1,5 +1,5 @@
 from django.contrib import admin
-from materiales.models import ActualizacionDePrecios
+from materiales.models import ActualizacionDePrecios, PrecioDeMaterial
 from django.utils.safestring import mark_safe
 
 from materiales.models import UnidadDeMedida, CategoriaDeMaterial, Material
@@ -47,6 +47,15 @@ class MaterialAdmin(admin.ModelAdmin):
 
 
 admin.site.register(Material, MaterialAdmin)
+
+
+class PrecioDeMaterialAdmin(admin.ModelAdmin):
+    list_display = ('material', 'precio', 'inicio_de_vigencia', 'fin_de_vigencia')
+    search_fields = ('material', )
+    actions = None
+
+
+admin.site.register(PrecioDeMaterial, PrecioDeMaterialAdmin)
 
 
 class ActualizacionDePreciosAdmin(admin.ModelAdmin):
