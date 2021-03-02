@@ -21,6 +21,17 @@ class Item(models.Model):
     def __str__(self):
         return f'{self.descripcion}'
 
+    def get_precio_unitario(self):
+        detalles = DetalleDeItem.objects.filter(item=self)
+        total = 0
+        for detalle in detalles:
+            precio_de_material = f'{detalle.material.precio_actual()}'
+            if precio_de_material.isnumeric():
+                total += float(detalle.material.precio_actual()) * detalle.coeficiente
+            else:
+                total += 0
+        return total
+
 
 class DetalleDeItem(models.Model):
     class Meta:

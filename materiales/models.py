@@ -76,7 +76,7 @@ def get_precio_de_material(**kwargs):
         fecha = kwargs.get("fecha") if 'fecha' in kwargs else datetime.date.today()
         precios = PrecioDeMaterial.objects.filter(material=material).order_by('-inicio_de_vigencia')
         for precio in precios:
-            if precio.inicio_de_vigencia < fecha:
+            if precio.inicio_de_vigencia <= fecha:
                 return precio
 
 
