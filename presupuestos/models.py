@@ -1,4 +1,5 @@
 import datetime
+import re
 
 from django.db import models
 
@@ -31,5 +32,14 @@ class DetalleDePresupuesto(models.Model):
 
 def get_siguiente_numero_de_presupuesto():
     anho = datetime.date.today().year
-    numero = Presupuesto.objects.filter(fecha__year=anho).count()
+    query_set = Presupuesto.objects.filter(fecha__year=anho).order_by("-pk")[:1]
+    numero = 0
+
+    if len(query_set) == 1:
+        match = re.search("^\d+", query_set[0].numero_de_presupuesto)
+
+        if match:
+            numero = int(match.group()) + 1
+
     return "{:#04d}-00/{:#d}".format(numero, anho)
+
