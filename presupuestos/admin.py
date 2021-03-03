@@ -28,7 +28,8 @@ class PresupuestoAdmin(admin.ModelAdmin):
         js = ('//ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js', 'js/admin/presupuesto/presupuesto.js',)
 
     def save_model(self, request, obj, form, change):
-        obj.numero_de_presupuesto = get_siguiente_numero_de_presupuesto()
+        if not change:
+            obj.numero_de_presupuesto = get_siguiente_numero_de_presupuesto()
         super().save_model(request, obj, form, change)
 
 
