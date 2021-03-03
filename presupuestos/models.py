@@ -8,10 +8,14 @@ from presupuestos.constants import EstadoPresupuestos
 from sistema.models import Ciudad
 
 
+def crear_numero_de_presupuesto(numero, revision, anho):
+    return "{:#04d}-{:#02d}/{:#d}".format(numero, revision, anho)
+
+
 class Presupuesto(models.Model):
     fecha = models.DateField(default=datetime.date.today)
     cliente = models.ForeignKey(Cliente, on_delete=models.PROTECT)
-    numero_de_presupuesto = models.CharField(max_length=100, verbose_name="Número de presupuesto")
+    numero_de_presupuesto = models.CharField(max_length=100, verbose_name="Número de presupuesto", default=crear_numero_de_presupuesto(numero=1, revision=0, anho=datetime.date.today().year))
     obra = models.CharField(max_length=250, verbose_name="Nombre o Descripción")
     direccion = models.CharField(max_length=300, verbose_name="Dirección", blank=True, null=True)
     ciudad = models.ForeignKey(Ciudad, on_delete=models.PROTECT, null=True, blank=True)
@@ -27,3 +31,4 @@ class DetalleDePresupuesto(models.Model):
     item = models.ForeignKey(Item, on_delete=models.PROTECT)
     cantidad = models.FloatField(default=1)
     subtotal = models.DecimalField(max_digits=15, decimal_places=0, default=0)
+    
