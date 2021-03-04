@@ -32,11 +32,13 @@ class DetalleDePresupuesto(models.Model):
 
 def get_siguiente_numero_de_presupuesto():
     anho = datetime.date.today().year
-    query_set = Presupuesto.objects.filter(fecha__year=anho).order_by("-pk")[:1]
+    ultimo_presupuesto = Presupuesto.objects.filter(fecha__year=anho) \
+      .extra(select={"num" : "COALESCE(CAST(SUBSTRING(numero_de_presupuesto FROM '^[0-9]+') AS INTEGER), -1)"}) \
+      .order_by("num", "numero_de_presupuesto").last()
     numero = 0
 
-    if len(query_set) == 1:
-        match = re.search("^\d+", query_set[0].numero_de_presupuesto)
+    if ultimo_presupuesto:
+        match = re.search("^\d+", ultimo_presupuesto.numero_de_presupuesto)
 
         if match:
             numero = int(match.group()) + 1
@@ -53,4 +55,3 @@ def get_siguiente_numero_de_revision(numero_de_presupuesto):
         numero_de_presupuesto = "{}-{:#02d}{}".format(prefijo, num_revision, sufijo)
 
     return numero_de_presupuesto
-    

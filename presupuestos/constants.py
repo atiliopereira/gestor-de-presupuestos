@@ -3,7 +3,6 @@
 
 class EstadoPresupuestos:
     PENDIENTE = 'pen'
-    PRESUPUESTADO = 'pre'
     ENVIADO = 'env'
     RECHAZADO = 'rec'
     APROBADO = 'apr'
