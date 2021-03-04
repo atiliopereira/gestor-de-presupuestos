@@ -43,3 +43,14 @@ def get_siguiente_numero_de_presupuesto():
 
     return "{:#04d}-00/{:#d}".format(numero, anho)
 
+def get_siguiente_numero_de_revision(numero_de_presupuesto):
+    match = re.search("-\d+", numero_de_presupuesto)
+
+    if match:
+        prefijo = numero_de_presupuesto[:match.start()]
+        sufijo  = numero_de_presupuesto[match.end():]
+        num_revision = int(match.group()[1:]) + 1
+        numero_de_presupuesto = "{}-{:#02d}{}".format(prefijo, num_revision, sufijo)
+
+    return numero_de_presupuesto
+    

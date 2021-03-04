@@ -10,7 +10,6 @@ class EstadoPresupuestos:
 
     ESTADOS = (
         (PENDIENTE, 'Pendiente'),
-        (PRESUPUESTADO, 'Presupuestado'),
         (ENVIADO, 'Enviado al cliente'),
         (RECHAZADO, 'Rechazado'),
         (APROBADO, 'Aprobado'),
