@@ -30,9 +30,9 @@ class DetalleDePresupuesto(models.Model):
     subtotal = models.DecimalField(max_digits=15, decimal_places=0, default=0)
     
 
-def get_siguiente_numero_de_presupuesto():
+def get_siguiente_numero_de_presupuesto(user):
     anho = datetime.date.today().year
-    ultimo_presupuesto = Presupuesto.objects.filter(fecha__year=anho) \
+    ultimo_presupuesto = Presupuesto.objects.filter(cliente__creado_por=user).filter(fecha__year=anho) \
       .extra(select={"num" : "COALESCE(CAST(SUBSTRING(numero_de_presupuesto FROM '^[0-9]+') AS INTEGER), -1)"}) \
       .order_by("num", "numero_de_presupuesto").last()
     numero = 0

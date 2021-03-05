@@ -30,7 +30,7 @@ class PresupuestoAdmin(admin.ModelAdmin):
 
     def save_model(self, request, obj, form, change):
         if not change:
-            obj.numero_de_presupuesto = get_siguiente_numero_de_presupuesto()
+            obj.numero_de_presupuesto = get_siguiente_numero_de_presupuesto(request.user)
             super().save_model(request, obj, form, change)
         elif obj.estado != EstadoPresupuestos.PENDIENTE:
             detalles = DetalleDePresupuesto.objects.filter(presupuesto=obj)
