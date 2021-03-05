@@ -79,28 +79,14 @@
                 <tr {% if  precio.es_actual %}
                         style="background-color: rgb(94, 255, 0)"
                     {% endif %} >
-                    <td>{{ precio.inicio_de_vigencia|date:"d/m/Y" }}</td>
-                    <td>{{ precio.fin_de_vigencia|date:"d/m/Y" }}</td>
-                    <td>{{ precio.precio }}</td>
+                    <td style="text-align: right">{{ precio.inicio_de_vigencia|date:"d/m/Y" }}</td>
+                    <td style="text-align: right">{{ precio.fin_de_vigencia|date:"d/m/Y" }}</td>
+                    <td style="text-align: right">{{ precio.precio }}</td>
                 </tr>
                 {% endfor %}
             </table>
         </div>
-
-        {% autoescape off %}
-            <script>
-                    let style = document.createElement("style");
-                    //document.head.appendChild(style);
-                    style.innerText =
-                    "#det-mat { font-family: sans-serif; } " +
-                    "#det-mat th { background-color: #AAA; border: 1px solid black; } " +
-                    "#det-mat tr { border: 1px solid black; } " +
-                    "#det-mat table { border-collapse: collapse; } " +
-                    "#det-mat tbody tr:nth-child(odd) { background-color: #EEF; } " +
-                    "#det-mat td { text-align: right; border: 1px solid black; padding: 5px; }" +
-                    "#det-mat th { padding: 6px; }";
-            </script>
-        {% endautoescape %}
+    
     {% else %}
         <div id="det-mat" class="w3-card-4" style="width:60%;margin-left:auto;margin-right:auto;">
             <p style="text-align: center; padding: 10px">El material aún no tiene ningún precio registrado.</p>
