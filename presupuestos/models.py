@@ -12,7 +12,7 @@ from sistema.models import Ciudad
 class Presupuesto(models.Model):
     fecha = models.DateField(default=datetime.date.today)
     cliente = models.ForeignKey(Cliente, on_delete=models.PROTECT)
-    numero_de_presupuesto = models.CharField(max_length=100, verbose_name="Número de presupuesto")
+    numero_de_presupuesto = models.CharField(max_length=100, verbose_name="Número de presupuesto", editable=False)
     obra = models.CharField(max_length=250, verbose_name="Nombre o Descripción")
     direccion = models.CharField(max_length=300, verbose_name="Dirección", blank=True, null=True)
     ciudad = models.ForeignKey(Ciudad, on_delete=models.PROTECT, null=True, blank=True)
