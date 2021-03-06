@@ -1,4 +1,5 @@
 from django.contrib import admin
+from django.utils.safestring import mark_safe
 
 from presupuestos.forms import DetalleDePresupuestoForm, PresupuestoForm
 from presupuestos.models import DetalleDePresupuesto, Presupuesto
@@ -17,7 +18,7 @@ class DetalleDePresupuestoInlineAdmin(admin.TabularInline):
 
 
 class PresupuestoAdmin(admin.ModelAdmin):
-    list_display = ('fecha', 'numero_de_presupuesto', 'obra', 'cliente', 'estado')
+    list_display = ('editar', 'ver', 'fecha', 'numero_de_presupuesto', 'obra', 'cliente', 'estado')
     ordering = ('fecha', )
     search_fields = ('numero_de_presupuesto', )
     inlines = (DetalleDePresupuestoInlineAdmin, )
@@ -44,6 +45,14 @@ class PresupuestoAdmin(admin.ModelAdmin):
                 detalle.save()
         else:
             super().save_model(request, obj, form, change)
+
+    def editar(self, obj):
+        html = '<a href="/admin/presupuestos/presupuesto/{}" class="icon-block"><i class="fa fa-edit"></i></a>'.format(obj.pk)
+        return mark_safe(html)
+
+    def ver(self, obj):
+        html = '<a href="/admin/presupuestos/presupuesto_detail/{}" class="icon-block"><i class="fa fa-eye"></i></a>'.format(obj.pk)
+        return mark_safe(html)
         
 
 admin.site.register(Presupuesto, PresupuestoAdmin)
