@@ -1,10 +1,12 @@
 from django.contrib import admin
 from django.utils.safestring import mark_safe
 
-from presupuestos.forms import DetalleDePresupuestoForm, PresupuestoForm
+from presupuestos.forms import DetalleDePresupuestoForm, PresupuestoForm, PresupuestoSearchForm
 from presupuestos.models import DetalleDePresupuesto, Presupuesto
 from presupuestos.models import get_siguiente_numero_de_presupuesto, get_siguiente_numero_de_revision
 from presupuestos.constants import EstadoPresupuestos
+from presupuestos.views import get_presupuestos_queryset
+
 
 class DetalleDePresupuestoInlineAdmin(admin.TabularInline):
     model = DetalleDePresupuesto
@@ -54,5 +56,46 @@ class PresupuestoAdmin(admin.ModelAdmin):
         html = '<a href="/admin/presupuestos/presupuesto_detail/{}" class="icon-block"><i class="fa fa-eye"></i></a>'.format(obj.pk)
         return mark_safe(html)
         
+    def get_search_results(self, request, queryset, search_term):
+        queryset, use_distinct = super().get_search_results(request, queryset, search_term)
+        return queryset, use_distinct
+
+    def lookup_allowed(self, lookup, *args, **kwargs):
+        if lookup in self.advanced_search_form.fields.keys():
+            return True
+        return super(PresupuestoAdmin, self).lookup_allowed(lookup, *args, **kwargs)
+
+    def get_queryset(self, request):
+        form = getattr(self, 'advanced_search_form', None)
+        qs = get_presupuestos_queryset(request, form)
+        return qs
+
+    def changelist_view(self, request, extra_context=None, **kwargs):
+
+        self.my_request_get = request.GET.copy()
+        self.advanced_search_form = PresupuestoSearchForm(request.GET)
+        self.advanced_search_form.is_valid()
+        self.other_search_fields = {}
+        params = request.get_full_path().split('?')
+        extra_context = extra_context or {}
+        extra_context.update({'asf': PresupuestoSearchForm,
+                              'my_request_get': self.my_request_get,
+                              'params': '?%s' % params[1].replace('%2F', '/') if len(params) > 1 else ''
+                              })
+        request.GET._mutable = True
+
+        for key in self.advanced_search_form.fields.keys():
+            try:
+                temp = request.GET.pop(key)
+            except KeyError:
+                pass
+            else:
+                if temp != ['']:
+                    self.other_search_fields[key] = temp
+        request.GET_mutable = False
+
+        return super(PresupuestoAdmin, self) \
+            .changelist_view(request, extra_context=extra_context, **kwargs)
+
 
 admin.site.register(Presupuesto, PresupuestoAdmin)
