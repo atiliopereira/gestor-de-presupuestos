@@ -20,7 +20,7 @@ class Presupuesto(models.Model):
     total = models.DecimalField(max_digits=15, decimal_places=0, default=0)
 
     def __str__(self):
-        return f'Presupuesto Nº{self.numero_de_presupuesto} - {self.obra} ({self.cliente.nombre})'
+        return f'Presupuesto Nº {self.numero_de_presupuesto} - {self.obra} ({self.cliente.nombre})'
 
 
 class DetalleDePresupuesto(models.Model):
