@@ -1,4 +1,5 @@
 {% extends "admin/base_site.html" %}
+{% load presupuesto_tags %}
 
 {% block breadcrumbs %}
 
@@ -35,25 +36,26 @@
             border-radius: 5px;
         }
     </style>
-    <style>
-        th {
-            text-align: center;
-            background-color: #CCC;
-            border: 1px solid #AAA;
-            vertical-align: middle;
-            font-size: 1.2em;
-        }
 
-        td {
-            font-size: 1.2em;
-        }
-
-    </style>
-    <div class="w3-card-4" style="width:60%;margin-left:auto;margin-right:auto; padding: 8px">
-        <h1 style="text-align:center; color: black">{{ object.descripcion }}</h1>
-        <h2><strong>Rubro: </strong>{{object.rubro}}</h2>
-        <h2><strong>Unidad de medida: </strong>{{object.unidad_de_medida}}</h2>
+    <h1 style="text-align:center; color: black">{{ object.descripcion }}</h1>
+    <div class="w3-card-4" style="width:60%;margin-left:auto;margin-right:auto;">
+        <div class="w3-container">
+            <table>
+                <tbody>
+                    <tr>
+                        <th scope="row"> Rubro </th>
+                        <td> {{ object.rubro.nombre }} </td>
+                    </tr>
+                    <tr>
+                        <th scope="row"> Unidad de medida </th>
+                        <td> {{ object.unidad_de_medida }} </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
     </div>
+
+
 
 
     <caption>
@@ -63,11 +65,16 @@
     {% if detalles %}
         <div class="w3-card-4" style="width:60%;margin-left:auto;margin-right:auto;">
             <table style="width: 100%">
-                <tr><th>Material</th><th>Coeficiente</th></tr>
+                <tr style="background-color: lightgrey">
+                    <th>Material</th>
+                    <th>Coeficiente</th>
+                </tr>
 
                 {% for detalle in detalles %}
                 <tr>
-                    <td>{{ detalle.material }}</td>
+                    <td>
+                        <a href="/admin/materiales/material_detail/{{ detalle.material.pk|eliminar_separador_miles }}">{{ detalle.material.descripcion }}</a>
+                    </td>
                     <td style="text-align: right">{{ detalle.coeficiente }}</td>
                 </tr>
                 {% endfor %}

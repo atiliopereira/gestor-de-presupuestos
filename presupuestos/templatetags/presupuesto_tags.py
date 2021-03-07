@@ -26,3 +26,8 @@ def advanced_search_form(context, cl):
 def presupuesto_search_form(context, cl):
     return advanced_search_form(context, cl)
 
+
+@register.filter
+def eliminar_separador_miles(numero):
+    numero_str = str(numero)
+    return numero_str

@@ -19,7 +19,7 @@ class Item(models.Model):
     unidad_de_medida = models.ForeignKey(UnidadDeMedida, on_delete=models.PROTECT)
 
     def __str__(self):
-        return f'{self.descripcion}'
+        return f'{self.descripcion} ({self.rubro})'
 
     def get_precio_unitario(self):
         detalles = DetalleDeItem.objects.filter(item=self)
