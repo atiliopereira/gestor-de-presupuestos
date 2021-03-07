@@ -20,11 +20,11 @@
 
 {% if app_list %}
        <tr>
-    {% for app in app_list %}
-        {% if forloop.counter0|divisibleby:4 %}
+        {% for app in app_list %}
+            {% if forloop.counter0|divisibleby:4 %}
+        </tr>
 
-            </tr>
-            <tr>
+                <tr>
         {% endif %}
 
         <td style="width: 200px">

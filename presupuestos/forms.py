@@ -1,6 +1,9 @@
 from dal import autocomplete
 from django import forms
+from django.contrib.admin.widgets import AdminDateWidget
 
+from clientes.models import Cliente
+from presupuestos.constants import EstadoPresupuestos
 from presupuestos.models import DetalleDePresupuesto, Presupuesto
 
 
@@ -43,3 +46,14 @@ class DetalleDePresupuestoForm(forms.ModelForm):
             self.initial['precio_unitario'] = instance.item.get_precio_unitario()
         self.fields['precio_unitario'].widget.attrs['readonly'] = True
 
+
+class PresupuestoSearchForm(forms.Form):
+    numero = forms.CharField(required=False,
+                             widget=forms.TextInput(attrs={'placeholder': 'Número', 'style': 'width:120px;'}),
+                             label="Número de presupuesto")
+    obra = forms.CharField(required=False, widget=forms.TextInput(attrs={'placeholder': 'Obra', 'style': 'width:220px;'}))
+    cliente = forms.CharField(required=False, widget=forms.TextInput(attrs={'placeholder': 'Cliente', 'style': 'width:220px;'}))
+    ESTADO_EN_BLANCO = (('', '---------'),)
+    estado = forms.ChoiceField(choices=ESTADO_EN_BLANCO + EstadoPresupuestos.ESTADOS, required=False)
+    desde = forms.DateField(widget=AdminDateWidget(attrs={'placeholder': 'Desde'}), required=False)
+    hasta = forms.DateField(widget=AdminDateWidget(attrs={'placeholder': 'Hasta'}), required=False)

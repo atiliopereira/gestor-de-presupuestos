@@ -27,7 +27,7 @@ admin.site.register(CategoriaDeMaterial, CategoriaDeMaterialAdmin)
 
 class MaterialAdmin(admin.ModelAdmin):
     list_display = ('editar', 'ver', 'codigo', 'descripcion', 'unidad_de_medida', 'categoria', 'precio_actual')
-    search_fields = ('descripcion', )
+    search_fields = ('descripcion', 'codigo')
     list_filter = ('categoria', )
     actions = None
 

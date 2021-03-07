@@ -13,7 +13,7 @@ class Presupuesto(models.Model):
     fecha = models.DateField(default=datetime.date.today)
     cliente = models.ForeignKey(Cliente, on_delete=models.PROTECT)
     numero_de_presupuesto = models.CharField(max_length=100, verbose_name="Número de presupuesto", editable=False)
-    obra = models.CharField(max_length=250, verbose_name="Nombre o Descripción")
+    obra = models.CharField(max_length=250, help_text="Nombre o Descripción")
     direccion = models.CharField(max_length=300, verbose_name="Dirección", blank=True, null=True)
     ciudad = models.ForeignKey(Ciudad, on_delete=models.PROTECT, null=True, blank=True)
     estado = models.CharField(max_length=3, choices=EstadoPresupuestos.ESTADOS, default=EstadoPresupuestos.PENDIENTE, editable=False)
@@ -44,6 +44,7 @@ def get_siguiente_numero_de_presupuesto(user):
             numero = int(match.group()) + 1
 
     return "{:#04d}-00/{:#d}".format(numero, anho)
+
 
 def get_siguiente_numero_de_revision(numero_de_presupuesto):
     match = re.search("-\d+", numero_de_presupuesto)
