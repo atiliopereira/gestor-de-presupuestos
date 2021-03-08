@@ -1,0 +1,85 @@
+{% extends "admin/base_site.html" %}
+
+{% block breadcrumbs %}
+
+    <div class="breadcrumbs">
+        <a href="{% url 'admin:index' %}">Inicio</a>
+        &rsaquo; Panel de profesionales
+    </div>
+
+{% endblock %}
+
+{% block extrastyle %}
+    <link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
+{% endblock %}
+
+{% block content %}
+    <style>
+        .w3-card-4 {
+          margin-bottom: 1%;
+        }
+        table {
+            width:100%;
+        }
+        tbody{
+            width: 100%;
+            display: table;
+        }
+        .label {
+            color: white;
+            padding: 8px;
+            font-weight: bold;
+            font-size: x-large;
+            border-radius: 5px;
+        }
+    </style>
+
+    <h1 style="text-align:center; color: black">Panel de administración de profesionales</h1>
+
+    <div class="w3-card-4" style="width:50%;margin-left:auto;margin-right:auto;">
+        <a href="/admin/profesionales/profesional">
+            <div class="w3-container">
+                <table summary="profesionales">
+                    <tbody>
+                        <tr>
+                            <td style="width: 10%">
+                                <img class="font-light text-white">
+                                <img src="/static/img/builder.svg" style="height: 15em">
+                            </td>
+                            <td style="text-align: left; padding-left: 10%">
+                                <div class="container" style="margin-top: 10%">
+                                    <h4><b>Lista de profesionales</b></h4>
+                                    <h4>Total: {{ total_profesionales }}</h4>
+                                </div>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </a>
+    </div>
+
+    <div class="w3-card-4" style="width:50%;margin-left:auto;margin-right:auto;">
+        <a href="/admin/profesionales/servicio">
+            <div class="w3-container">
+                <table summary="servicios">
+                    <tbody>
+                        <tr>
+                            <td style="width: 10%">
+                                <img class="font-light text-white">
+                                <img src="/static/img/hammer.svg" style="height: 15em ">
+                            </td>
+                            <td style="text-align: left; padding-left: 10%">
+                                <div class="container" style="margin-top: 10%">
+                                    <h4><b>Servicios</b></h4>
+                                    <h4>Total: {{ total_servicios }}</h4>
+                                </div>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </a>
+    </div>
+
+{% endblock %}
