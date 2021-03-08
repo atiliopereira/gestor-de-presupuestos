@@ -1,0 +1,120 @@
+{% extends "admin/base_site.html" %}
+{% load presupuesto_tags %}
+
+
+{% block breadcrumbs %}
+
+    <div class="breadcrumbs">
+        <a href="{% url 'admin:index' %}">Inicio</a>
+        &rsaquo; <a href="{% url 'admin:app_list' 'presupuestos' %}">Presupuestos</a>
+        &rsaquo; <a href="/admin/presupuestos/presupuesto">Lista de presupuestos</a>
+        &rsaquo; Detalle de presupuesto
+    </div>
+
+{% endblock %}
+
+{% block extrastyle %}
+    <link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
+{% endblock %}
+
+{% block content %}
+    <style>
+        .w3-card-4 {
+          margin-bottom: 1%;
+        }
+        table {
+            width:100%;
+        }
+        tbody{
+            width: 100%;
+            display: table;
+        }
+        .label {
+            color: white;
+            padding: 8px;
+            font-weight: bold;
+            font-size: x-large;
+            border-radius: 5px;
+        }
+    </style>
+
+    <h1 style="text-align:center; color: black">{{ object.numero_de_presupuesto }}
+        {% if object.estado == 'rec' %} <span class="label" style="background-color: #f44336;">Rechazado</span>
+        {% elif object.estado == 'pen' %} <span class="label" style="background-color: #ffeb3b;">Pendiente</span>
+        {% elif object.estado == 'env' %} <span class="label" style="background-color: #2196F3;">Enviado</span>
+        {% elif object.estado == 'apr' %} <span class="label" style="background-color: #4CAF50;">Aprobado</span>
+        {% endif %}
+    </h1>
+
+
+    <div class="w3-card-4" style="width:60%;margin-left:auto;margin-right:auto;">
+        <header class="w3-container w3-light-grey">
+          <h4>Datos del presupuesto</h4>
+        </header>
+        <div class="w3-container">
+          <table>
+              <tbody>
+                <tr>
+                    <th scope="row"> Fecha </th>
+                    <td> {{ object.fecha }} </td>
+                </tr>
+                <tr>
+                    <th scope="row"> Cliente </th>
+                    <td> {{ object.cliente.nombre }} </td>
+                </tr>
+                <tr>
+                    <th scope="row"> Obra </th>
+                    <td> {{ object.obra }} </td>
+                </tr>
+                {% if object.ciudad %}
+                    <tr>
+                        <th scope="row"> Ciudad </th>
+                        <td> {{ object.ciudad.nombre }} </td>
+                    </tr>
+                {% endif %}
+                {% if object.direccion %}
+                    <tr>
+                        <th scope="row"> Dirección </th>
+                        <td> {{ object.direccion }} </td>
+                    </tr>
+                {% endif %}
+              </tbody>
+          </table>
+        </div>
+    </div>
+
+
+    <caption>
+        <h4 style="text-align:center">Detalle</h4>
+    </caption>
+
+    {% if detalles %}
+        <div class="w3-card-4" style="width:60%;margin-left:auto;margin-right:auto;">
+            <table style="width: 100%">
+                <tr style="background-color: lightgrey">
+                    <th>Ítem</th>
+                    <th style="text-align: right">Cantidad</th>
+                    <th>Unidad</th>
+                    <th style="text-align: right">Precio Unitario</th>
+                    <th style="text-align: right">Subtotal</th>
+                </tr>
+
+                {% for detalle in detalles %}
+                <tr>
+                    <td>
+                        <a href="/admin/items/item_detail/{{ detalle.item.pk|eliminar_separador_miles }}">{{ detalle.item }}</a>
+                    </td>
+                    <td style="text-align: right">{{ detalle.cantidad }}</td>
+                    <td>{{ detalle.item.unidad_de_medida.simbolo }}</td>
+                    <td style="text-align: right">{{ detalle.item.get_precio_unitario|floatformat:"0"|default_if_none:"&nbsp;" }}</td>
+                    <td style="text-align: right">{{ detalle.subtotal }}</td>
+                </tr>
+                {% endfor %}
+            </table>
+        </div>
+    
+    {% endif %}
+    <caption><h3 style="text-align:right; padding-right: 15%; color: black">Total: {{ object.total|floatformat:"0"|default_if_none:"&nbsp;" }}</h3></caption>
+    <button type="button" class="btn btn-primary" onclick="window.history.back(); return false;">Volver</button>
+
+{% endblock %}

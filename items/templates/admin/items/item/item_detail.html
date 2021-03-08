@@ -1,0 +1,88 @@
+{% extends "admin/base_site.html" %}
+{% load presupuesto_tags %}
+
+{% block breadcrumbs %}
+
+    <div class="breadcrumbs">
+        <a href="{% url 'admin:index' %}">Inicio</a>
+        &rsaquo; <a href="{% url 'admin:app_list' 'items' %}">Ítems</a>
+        &rsaquo; <a href="/admin/items/item">Lista de ítems</a>
+        &rsaquo; Detalle de ítem
+    </div>
+
+{% endblock %}
+
+{% block extrastyle %}
+    <link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
+{% endblock %}
+
+{% block content %}
+    <style>
+        .w3-card-4 {
+          margin-bottom: 1%;
+        }
+        table {
+            width:100%;
+        }
+        tbody{
+            width: 100%;
+            display: table;
+        }
+        .label {
+            color: white;
+            padding: 8px;
+            font-weight: bold;
+            font-size: x-large;
+            border-radius: 5px;
+        }
+    </style>
+
+    <h1 style="text-align:center; color: black">{{ object.descripcion }}</h1>
+    <div class="w3-card-4" style="width:60%;margin-left:auto;margin-right:auto;">
+        <div class="w3-container">
+            <table>
+                <tbody>
+                    <tr>
+                        <th scope="row"> Rubro </th>
+                        <td> {{ object.rubro.nombre }} </td>
+                    </tr>
+                    <tr>
+                        <th scope="row"> Unidad de medida </th>
+                        <td> {{ object.unidad_de_medida }} </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+
+
+
+    <caption>
+        <h4 style="text-align:center">Detalles</h4>
+    </caption>
+
+    {% if detalles %}
+        <div class="w3-card-4" style="width:60%;margin-left:auto;margin-right:auto;">
+            <table style="width: 100%">
+                <tr style="background-color: lightgrey">
+                    <th>Material</th>
+                    <th>Coeficiente</th>
+                </tr>
+
+                {% for detalle in detalles %}
+                <tr>
+                    <td>
+                        <a href="/admin/materiales/material_detail/{{ detalle.material.pk|eliminar_separador_miles }}">{{ detalle.material.descripcion }}</a>
+                    </td>
+                    <td style="text-align: right">{{ detalle.coeficiente }}</td>
+                </tr>
+                {% endfor %}
+            </table>
+        </div>
+    
+    {% endif %}
+
+    <button type="button" class="btn btn-primary" onclick="window.history.back(); return false;">Volver</button>
+
+{% endblock %}
