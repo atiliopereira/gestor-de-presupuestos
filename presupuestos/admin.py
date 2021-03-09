@@ -71,7 +71,10 @@ class PresupuestoAdmin(admin.ModelAdmin):
 
     def get_queryset(self, request):
         form = getattr(self, 'advanced_search_form', None)
-        qs = get_presupuestos_queryset(request, form)
+        if form:
+            qs = get_presupuestos_queryset(request, form)
+        else:
+            qs = super(PresupuestoAdmin, self).get_queryset(request)
         return qs
 
     def changelist_view(self, request, extra_context=None, **kwargs):
