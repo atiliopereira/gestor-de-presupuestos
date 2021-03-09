@@ -7,7 +7,7 @@ class Cliente(models.Model):
     ruc = models.CharField(max_length=20, verbose_name="RUC", null=True, blank=True)
     direccion = models.CharField(max_length=200, null=True, blank=True, verbose_name="dirección")
     telefono = models.CharField(max_length=50, null=True, blank=True, verbose_name="teléfono")
-    email = models.CharField(max_length=100, null=True, blank=True, verbose_name="e-mail")
+    email = models.EmailField(max_length=100, null=True, blank=True, verbose_name="e-mail")
     creado_por = models.ForeignKey(User, on_delete=models.PROTECT, editable=False)
 
     def __str__(self):

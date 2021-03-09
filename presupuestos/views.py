@@ -16,6 +16,7 @@ class PresupuestoDashboardView(TemplateView):
         context["total_materiales"] = Material.objects.all().count()
         context["ultima_actualizacion"] = ActualizacionDePrecios.objects.all().order_by('fecha').last()
         context["total_items"] = Item.objects.all().count()
+        context["usuario_id"] = self.request.user.pk
         return context
 
 

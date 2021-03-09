@@ -18,7 +18,7 @@ class Profesional(models.Model):
     direccion = models.CharField(max_length=200, null=True, blank=True, verbose_name="dirección")
     ciudad = models.ForeignKey(Ciudad, on_delete=models.PROTECT, blank=True, null=True)
     telefono = models.CharField(max_length=50, null=True, blank=True, verbose_name="teléfono")
-    email = models.CharField(max_length=100, null=True, blank=True, verbose_name="e-mail")
+    email = models.EmailField(max_length=100, null=True, blank=True, verbose_name="e-mail")
 
     def __str__(self):
         return f'{self.nombre}'
@@ -43,7 +43,7 @@ class Proveedor(models.Model):
     direccion = models.CharField(max_length=200, null=True, blank=True, verbose_name="dirección")
     ciudad = models.ForeignKey(Ciudad, on_delete=models.PROTECT, blank=True, null=True)
     telefono = models.CharField(max_length=50, null=True, blank=True, verbose_name="teléfono")
-    email = models.CharField(max_length=100, null=True, blank=True, verbose_name="e-mail")
+    email = models.EmailField(max_length=100, null=True, blank=True, verbose_name="e-mail")
 
     def __str__(self):
         return f'{self.nombre}'
