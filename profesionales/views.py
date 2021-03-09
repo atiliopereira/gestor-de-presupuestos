@@ -1,6 +1,6 @@
 from django.views.generic import TemplateView
 
-from profesionales.models import Profesional, Servicio
+from profesionales.models import Profesional, Proveedor
 
 
 class ProfesionalesDashboardView(TemplateView):
@@ -9,5 +9,5 @@ class ProfesionalesDashboardView(TemplateView):
     def get_context_data(self, **kwargs):
         context = super(ProfesionalesDashboardView, self).get_context_data(**kwargs)
         context["total_profesionales"] = Profesional.objects.all().count()
-        context["total_servicios"] = Servicio.objects.all().count()
+        context["total_proveedores"] = Proveedor.objects.all().count()
         return context
