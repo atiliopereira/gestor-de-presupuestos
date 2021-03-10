@@ -26,7 +26,7 @@ admin.site.register(CategoriaDeMaterial, CategoriaDeMaterialAdmin)
 
 
 class MaterialAdmin(admin.ModelAdmin):
-    list_display = ('editar', 'ver', 'codigo', 'descripcion', 'unidad_de_medida', 'categoria', 'precio_actual')
+    list_display = ('editar', 'ver', 'codigo', 'descripcion', 'unidad_de_medida', 'categoria',)
     search_fields = ('descripcion', 'codigo')
     list_filter = ('categoria', )
     actions = None
@@ -50,8 +50,11 @@ admin.site.register(Material, MaterialAdmin)
 
 
 class PrecioDeMaterialAdmin(admin.ModelAdmin):
-    list_display = ('material', 'precio', 'inicio_de_vigencia', 'fin_de_vigencia')
-    search_fields = ('material', )
+    list_display = ('material', 'precio', 'ciudad', 'inicio_de_vigencia', 'fin_de_vigencia')
+    search_fields = ('material__descripcion', )
+    list_filter = ('ciudad', )
+    autocomplete_fields = ('material', )
+
     actions = None
 
 

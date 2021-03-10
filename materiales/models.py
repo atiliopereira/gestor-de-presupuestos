@@ -4,6 +4,8 @@ import os
 import xlrd
 from django.db import models
 
+from sistema.models import Ciudad, get_ciudad_default
+
 
 class UnidadDeMedida(models.Model):
     class Meta:
@@ -43,6 +45,14 @@ class CategoriaDeMaterial(models.Model):
     get_categoria_principal.short_description = "Categoría Principal"
 
 
+def get_categoría_default():
+    qs = CategoriaDeMaterial.objects.filter(nombre='Sin categoría')
+    if qs.exists():
+        return qs.first().pk
+    else:
+        return CategoriaDeMaterial.objects.create(nombre='Sin categoría').pk
+
+
 class Material(models.Model):
     class Meta:
         verbose_name = "material"
@@ -51,10 +61,11 @@ class Material(models.Model):
     codigo = models.CharField(max_length=50, verbose_name="código")
     descripcion = models.CharField(max_length=150, verbose_name="descripción")
     unidad_de_medida = models.ForeignKey(UnidadDeMedida, on_delete=models.PROTECT)
-    categoria = models.ForeignKey(CategoriaDeMaterial, on_delete=models.PROTECT, verbose_name="categoría")
+    categoria = models.ForeignKey(CategoriaDeMaterial, on_delete=models.PROTECT, verbose_name="categoría",
+                                  default=get_categoría_default)
 
     def __str__(self):
-        return f'{self.descripcion} ({self.categoria.nombre})'
+        return f'{self.codigo} - {self.descripcion} ({self.categoria.nombre})'
 
     def precio_actual(self):
         precio_mat = get_precio_de_material(material=self)
@@ -62,7 +73,10 @@ class Material(models.Model):
 
 
 class PrecioDeMaterial(models.Model):
+    class Meta:
+        verbose_name_plural = "Precios de materiales"
     material = models.ForeignKey(Material, on_delete=models.CASCADE)
+    ciudad = models.ForeignKey(Ciudad, on_delete=models.PROTECT, default=get_ciudad_default)
     precio = models.DecimalField(max_digits=15, decimal_places=0)
     inicio_de_vigencia = models.DateField(default=datetime.date.today)
     fin_de_vigencia = models.DateField(null=True, blank=True, editable=False)
@@ -70,8 +84,18 @@ class PrecioDeMaterial(models.Model):
 
 def get_precio_de_material(**kwargs):
     material = kwargs.get("material")
+    ciudad = kwargs.get("ciudad")
     if not material:
         return None
+    if material and ciudad:
+        fecha = kwargs.get("fecha") if 'fecha' in kwargs else datetime.date.today()
+        precios = PrecioDeMaterial.objects.filter(material=material).filter(ciudad=ciudad).order_by('-inicio_de_vigencia')
+        if precios.exists():
+            for precio in precios:
+                if precio.inicio_de_vigencia <= fecha:
+                    return precio
+        else:
+            return None
     else:
         fecha = kwargs.get("fecha") if 'fecha' in kwargs else datetime.date.today()
         precios = PrecioDeMaterial.objects.filter(material=material).order_by('-inicio_de_vigencia')

@@ -30,3 +30,11 @@ class Usuario(models.Model):
     direccion = models.CharField(max_length=200, null=True, blank=True)
     ciudad = models.ForeignKey(Ciudad, on_delete=models.PROTECT)
     logo = models.ImageField(blank=True, null=True)
+
+
+def get_ciudad_default():
+    ciudad_principal = Ciudad.objects.get(pk=1)
+    if ciudad_principal:
+        return ciudad_principal.pk
+    else:
+        return Ciudad.objects.create(nombre='Asunción').pk
