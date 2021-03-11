@@ -62,25 +62,44 @@
         <h4 style="text-align:center">Detalles</h4>
     </caption>
 
-    {% if detalles %}
+    {% if materiales %}
         <div class="w3-card-4" style="width:60%;margin-left:auto;margin-right:auto;">
             <table style="width: 100%">
                 <tr style="background-color: lightgrey">
-                    <th>Material</th>
+                    <th style="width: 80%">Material</th>
                     <th>Coeficiente</th>
                 </tr>
 
-                {% for detalle in detalles %}
+                {% for material in materiales %}
                 <tr>
                     <td>
-                        <a href="/admin/materiales/material_detail/{{ detalle.material.pk|eliminar_separador_miles }}">{{ detalle.material.descripcion }}</a>
+                        <a href="/admin/materiales/material_detail/{{ detalle.material.pk|eliminar_separador_miles }}">{{ material.material.descripcion }}</a>
                     </td>
-                    <td style="text-align: right">{{ detalle.coeficiente }}</td>
+                    <td style="padding-left: 5em">{{ material.coeficiente }}</td>
                 </tr>
                 {% endfor %}
             </table>
         </div>
-    
+    {% endif %}
+
+    {% if servicios %}
+        <div class="w3-card-4" style="width:60%;margin-left:auto;margin-right:auto;">
+            <table style="width: 100%">
+                <tr style="background-color: lightgrey">
+                    <th style="width: 80%">Servicio</th>
+                    <th>Coeficiente</th>
+                </tr>
+
+                {% for servicio in servicios %}
+                <tr>
+                    <td>
+                        <a href="/admin/servicios/servicio_detail/{{ servicio.servicio.pk|eliminar_separador_miles }}">{{ servicio.servicio.descripcion }}</a>
+                    </td>
+                    <td style="padding-left: 5em">{{ servicio.coeficiente }}</td>
+                </tr>
+                {% endfor %}
+            </table>
+        </div>
     {% endif %}
 
     <button type="button" class="btn btn-primary" onclick="window.history.back(); return false;">Volver</button>
