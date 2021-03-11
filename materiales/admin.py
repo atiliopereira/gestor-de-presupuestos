@@ -1,5 +1,5 @@
 from django.contrib import admin
-from materiales.models import ActualizacionDePrecios, PrecioDeMaterial
+from materiales.models import ActualizacionDePreciosDeMateriales, PrecioDeMaterial
 from django.utils.safestring import mark_safe
 
 from materiales.models import UnidadDeMedida, CategoriaDeMaterial, Material
@@ -61,9 +61,9 @@ class PrecioDeMaterialAdmin(admin.ModelAdmin):
 admin.site.register(PrecioDeMaterial, PrecioDeMaterialAdmin)
 
 
-class ActualizacionDePreciosAdmin(admin.ModelAdmin):
+class ActualizacionDePreciosDeMaterialesAdmin(admin.ModelAdmin):
     list_display = ('fecha', )
     actions = None
 
 
-admin.site.register(ActualizacionDePrecios, ActualizacionDePreciosAdmin)
+admin.site.register(ActualizacionDePreciosDeMateriales, ActualizacionDePreciosDeMaterialesAdmin)

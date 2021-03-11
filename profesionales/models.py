@@ -1,15 +1,8 @@
 from django.db import models
 
 from materiales.models import Material
+from servicios.models import Servicio
 from sistema.models import Ciudad
-
-
-class Servicio(models.Model):
-    descripcion = models.CharField(max_length=150, verbose_name="descripción")
-    activo = models.BooleanField(default=True, editable=False)
-
-    def __str__(self):
-        return f'{self.descripcion}'
 
 
 class Profesional(models.Model):

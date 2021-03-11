@@ -43,7 +43,7 @@ class DetalleDePresupuestoForm(forms.ModelForm):
         super(DetalleDePresupuestoForm, self).__init__(*args, **kwargs)
         instance = getattr(self, 'instance', None)
         if instance and instance.pk:
-            self.initial['precio_unitario'] = instance.item.get_precio_unitario()
+            self.initial['precio_unitario'] = instance.item.get_precio_unitario_de_item()
         self.fields['precio_unitario'].widget.attrs['readonly'] = True
 
 

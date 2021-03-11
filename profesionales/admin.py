@@ -4,15 +4,6 @@ from django.utils.safestring import mark_safe
 from profesionales.models import Servicio, ServicioProfesional, Profesional, MaterialProveedor, Proveedor
 
 
-class ServicioAdmin(admin.ModelAdmin):
-    search_fields = ('descripcion', )
-    list_display = ('descripcion', )
-    actions = None
-
-
-admin.site.register(Servicio, ServicioAdmin)
-
-
 class ServicioProfesionalInlineAdmin(admin.TabularInline):
     model = ServicioProfesional
     autocomplete_fields = ('servicio', )

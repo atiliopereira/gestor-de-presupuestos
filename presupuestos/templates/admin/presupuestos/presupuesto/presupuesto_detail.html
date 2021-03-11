@@ -95,7 +95,6 @@
                     <th>Ítem</th>
                     <th style="text-align: right">Cantidad</th>
                     <th>Unidad</th>
-                    <th style="text-align: right">Precio Unitario</th>
                     <th style="text-align: right">Subtotal</th>
                 </tr>
 
@@ -106,7 +105,6 @@
                     </td>
                     <td style="text-align: right">{{ detalle.cantidad }}</td>
                     <td>{{ detalle.item.unidad_de_medida.simbolo }}</td>
-                    <td style="text-align: right">{{ detalle.item.get_precio_unitario|floatformat:"0"|default_if_none:"&nbsp;" }}</td>
                     <td style="text-align: right">{{ detalle.subtotal }}</td>
                 </tr>
                 {% endfor %}

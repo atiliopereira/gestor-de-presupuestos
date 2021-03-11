@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from items.models import DetalleDeItem
+from items.models import MaterialDeItem
 from presupuestos.models import Presupuesto, DetalleDePresupuesto
 from tillner.globales import listview_to_excel, separar
 
@@ -26,7 +26,7 @@ def presupuesto_report(request, id):
             dp.item.unidad_de_medida.simbolo,
         ])
         lista_datos.append(["MAT/MDO", "Cantidad", "Unidad", "Precio Unit.", "Subtotal"])
-        for di in DetalleDeItem.objects.filter(item=dp.item).distinct('material'):
+        for di in MaterialDeItem.objects.filter(item=dp.item).distinct('material'):
             cantidad_total = float(dp.cantidad) * di.coeficiente
             total_material = float(di.material.precio_actual()) * cantidad_total
             lista_datos.append([
