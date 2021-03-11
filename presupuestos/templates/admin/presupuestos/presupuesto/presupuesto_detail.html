@@ -40,7 +40,7 @@
 
     <h1 style="text-align:center; color: black">{{ object.numero_de_presupuesto }}
         {% if object.estado == 'rec' %} <span class="label" style="background-color: #f44336;">Rechazado</span>
-        {% elif object.estado == 'pen' %} <span class="label" style="background-color: #ffeb3b;">Pendiente</span>
+        {% elif object.estado == 'pen' %} <span class="label" style="background-color: #ffc107;">Pendiente</span>
         {% elif object.estado == 'env' %} <span class="label" style="background-color: #2196F3;">Enviado</span>
         {% elif object.estado == 'apr' %} <span class="label" style="background-color: #4CAF50;">Aprobado</span>
         {% endif %}
@@ -60,7 +60,9 @@
                 </tr>
                 <tr>
                     <th scope="row"> Cliente </th>
-                    <td> {{ object.cliente.nombre }} </td>
+                    <td>
+                         <a href="/admin/clientes/cliente_detail/{{ object.cliente.pk|eliminar_separador_miles }}">{{ object.cliente.nombre }}</a>
+                    </td>
                 </tr>
                 <tr>
                     <th scope="row"> Obra </th>

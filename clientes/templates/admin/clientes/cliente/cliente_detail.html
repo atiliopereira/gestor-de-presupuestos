@@ -31,9 +31,9 @@
         }
         .label {
             color: white;
-            padding: 8px;
+            padding: 2px;
             font-weight: bold;
-            font-size: x-large;
+            font-size: medium;
             border-radius: 5px;
         }
     </style>
@@ -77,20 +77,31 @@
     </caption>
 
     {% if presupuestos %}
-        <div class="w3-card-4" style="width:60%;margin-left:auto;margin-right:auto;">
+        <div class="w3-card-4" style="width:80%;margin-left:auto;margin-right:auto;">
             <table style="width: 100%">
                 <tr style="background-color: lightgrey">
+                    <th>Fecha</th>
                     <th>Número</th>
+                    <th>Obra</th>
+                    <th>Ciudad</th>
                     <th>Estado</th>
                     <th>Total</th>
                 </tr>
 
                 {% for presupuesto in presupuestos %}
                 <tr>
+                    <td>{{ presupuesto.fecha|date }}</td>
                     <td>
                         <a href="/admin/presupuestos/presupuesto_detail/{{ presupuesto.pk|eliminar_separador_miles }}">{{ presupuesto.numero_de_presupuesto }}</a>
                     </td>
-                    <td> {{ presupuesto.estado }} </td>
+                    <td>{{ presupuesto.obra }}</td>
+                    <td>{{ presupuesto.ciudad.nombre }}</td>
+                    <td>
+                        {% if presupuesto.estado == 'rec' %} <span class="label" style="background-color: #f44336;">Rechazado</span>
+                        {% elif presupuesto.estado == 'pen' %} <span class="label" style="background-color: #ffc107;">Pendiente</span>
+                        {% elif presupuesto.estado == 'env' %} <span class="label" style="background-color: #2196F3;">Enviado</span>
+                        {% elif presupuesto.estado == 'apr' %} <span class="label" style="background-color: #4CAF50;">Aprobado</span>
+                        {% endif %}
                     <td style="text-align: right"> {{ presupuesto.total }} </td>
                 </tr>
                 {% endfor %}
