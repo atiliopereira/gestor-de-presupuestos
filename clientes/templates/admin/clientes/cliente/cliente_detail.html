@@ -1,0 +1,115 @@
+{% extends "admin/base_site.html" %}
+{% load presupuesto_tags %}
+
+
+{% block breadcrumbs %}
+
+    <div class="breadcrumbs">
+        <a href="{% url 'admin:index' %}">Inicio</a>
+        &rsaquo; <a href="{% url 'admin:app_list' 'presupuestos' %}">Presupuestos</a>
+        &rsaquo; <a href="/admin/presupuestos/presupuesto">Lista de presupuestos</a>
+        &rsaquo; Detalle de presupuesto
+    </div>
+
+{% endblock %}
+
+{% block extrastyle %}
+    <link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
+{% endblock %}
+
+{% block content %}
+    <style>
+        .w3-card-4 {
+          margin-bottom: 1%;
+        }
+        table {
+            width:100%;
+        }
+        tbody{
+            width: 100%;
+            display: table;
+        }
+        .label {
+            color: white;
+            padding: 2px;
+            font-weight: bold;
+            font-size: medium;
+            border-radius: 5px;
+        }
+    </style>
+
+    <h1 style="text-align:center; color: black">
+        {{ object}}
+    </h1>
+
+
+    <div class="w3-card-4" style="width:60%;margin-left:auto;margin-right:auto;">
+        <header class="w3-container w3-light-grey">
+          <h4>Datos del cliente</h4>
+        </header>
+        <div class="w3-container">
+          <table>
+              <tbody>
+                <tr>
+                    <th scope="row"> RUC </th>
+                    <td> {{ object.ruc|default:"" }} </td>
+                </tr>
+                <tr>
+                    <th scope="row"> Teléfono </th>
+                    <td> {{ object.telefono|default:"" }} </td>
+                </tr>
+                <tr>
+                    <th scope="row"> Dirección </th>
+                    <td> {{ object.direccion|default:"" }} </td>
+                </tr>
+                <tr>
+                    <th scope="row"> E-mail </th>
+                    <td> {{ object.email|default:"" }} </td>
+                </tr>
+              </tbody>
+          </table>
+        </div>
+    </div>
+
+
+    <caption>
+        <h4 style="text-align:center">Presupuestos</h4>
+    </caption>
+
+    {% if presupuestos %}
+        <div class="w3-card-4" style="width:80%;margin-left:auto;margin-right:auto;">
+            <table style="width: 100%">
+                <tr style="background-color: lightgrey">
+                    <th>Fecha</th>
+                    <th>Número</th>
+                    <th>Obra</th>
+                    <th>Ciudad</th>
+                    <th>Estado</th>
+                    <th>Total</th>
+                </tr>
+
+                {% for presupuesto in presupuestos %}
+                <tr>
+                    <td>{{ presupuesto.fecha|date }}</td>
+                    <td>
+                        <a href="/admin/presupuestos/presupuesto_detail/{{ presupuesto.pk|eliminar_separador_miles }}">{{ presupuesto.numero_de_presupuesto }}</a>
+                    </td>
+                    <td>{{ presupuesto.obra }}</td>
+                    <td>{{ presupuesto.ciudad.nombre }}</td>
+                    <td>
+                        {% if presupuesto.estado == 'rec' %} <span class="label" style="background-color: #f44336;">Rechazado</span>
+                        {% elif presupuesto.estado == 'pen' %} <span class="label" style="background-color: #ffc107;">Pendiente</span>
+                        {% elif presupuesto.estado == 'env' %} <span class="label" style="background-color: #2196F3;">Enviado</span>
+                        {% elif presupuesto.estado == 'apr' %} <span class="label" style="background-color: #4CAF50;">Aprobado</span>
+                        {% endif %}
+                    <td style="text-align: right"> {{ presupuesto.total }} </td>
+                </tr>
+                {% endfor %}
+            </table>
+        </div>
+    
+    {% endif %}
+
+    <button type="button" class="btn btn-primary" onclick="window.history.back(); return false;">Volver</button>
+
+{% endblock %}
