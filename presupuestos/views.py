@@ -2,8 +2,9 @@ from django.views.generic import DetailView, TemplateView
 
 from clientes.models import Cliente
 from items.models import Item
-from materiales.models import Material, ActualizacionDePrecios
+from materiales.models import Material, ActualizacionDePreciosDeMateriales
 from presupuestos.models import Presupuesto, DetalleDePresupuesto
+from servicios.models import ActualizacionDePreciosDeServicios, Servicio
 
 
 class PresupuestoDashboardView(TemplateView):
@@ -14,7 +15,11 @@ class PresupuestoDashboardView(TemplateView):
         context["total_presupuestos"] = Presupuesto.objects.filter(cliente__creado_por=self.request.user).count()
         context["total_clientes"] = Cliente.objects.filter(creado_por=self.request.user).count()
         context["total_materiales"] = Material.objects.all().count()
-        context["ultima_actualizacion"] = ActualizacionDePrecios.objects.all().order_by('fecha').last()
+        context["ultima_actualizacion_materiales"] = ActualizacionDePreciosDeMateriales.objects.all().order_by(
+            'fecha').last()
+        context["total_servicios"] = Servicio.objects.all().count()
+        context["ultima_actualizacion_servicios"] = ActualizacionDePreciosDeServicios.objects.all().order_by(
+            'fecha').last()
         context["total_items"] = Item.objects.all().count()
         context["usuario_id"] = self.request.user.pk
         return context
