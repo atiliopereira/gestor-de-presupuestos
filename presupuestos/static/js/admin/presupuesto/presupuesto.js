@@ -5,22 +5,24 @@
             if(vector[0] === "id_detalledepresupuesto_set"){
                 var optionSelected = $(this).find("option:selected");
                 var valueSelected  = optionSelected.val();
+                var ciudad = document.getElementById("id_ciudad").value;
                 if(!valueSelected){
                     $("#id_detalledepresupuesto_set-" + vector[1] + "-precio_unitario").val("");
                     return
                 }
                 $.ajax({
-                    data : {'item_id' : valueSelected },
-                    url : "/admin/items/getitem/",
-                    type : "get",
-                    success : function(data){
+                    data: {"item_id": valueSelected, "ciudad_id": ciudad },
+                    url: "/admin/items/getitem/",
+                    type: "get",
+                    success: function(data){
                         $("#id_detalledepresupuesto_set-" + vector[1] + "-precio_unitario").val(data.precio);
                         calcular_subtotal();
                     }
                 });
             }
+        });
 
-
+        $('#id_ciudad').change(function() {
 
         });
 
@@ -53,14 +55,13 @@ function calcular_subtotal() {
     for( var i=0; i<rows_length; i++){
         var cantidad = document.getElementById('id_detalledepresupuesto_set-'+i+'-cantidad').value;
         var precio = document.getElementById('id_detalledepresupuesto_set-'+i+'-precio_unitario').value;
-        $("#id_detalledepresupuesto_set-" + i + "-subtotal").val(cantidad*precio);
+        $("#id_detalledepresupuesto_set-" + i + "-subtotal").val(separarMiles(cantidad*precio));
     }
     calcular_total();
 }
 
 
 function calcular_total(){
-    console.log("hoas")
     total = 0;
     var rows = $("tr[id*='detalledepresupuesto_set']");
     var rows_length = rows.length -1; // para evadir el empty

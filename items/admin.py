@@ -1,11 +1,17 @@
 from django.contrib import admin
 from django.utils.safestring import mark_safe
-from items.models import Rubro, Item, DetalleDeItem
+from items.models import Rubro, Item, MaterialDeItem, ServicioDeItem
 
 
-class DetalleDeItemInlineAdmin(admin.TabularInline):
-    model = DetalleDeItem
+class MaterialDeItemInlineAdmin(admin.TabularInline):
+    model = MaterialDeItem
     autocomplete_fields = ("material",)
+    extra = 0
+
+
+class ServicioDeItemInlineAdmin(admin.TabularInline):
+    model = ServicioDeItem
+    autocomplete_fields = ("servicio",)
     extra = 0
 
 
@@ -24,7 +30,7 @@ class ItemAdmin(admin.ModelAdmin):
     list_display = ('editar', 'ver', "descripcion", "unidad_de_medida", "rubro")
     search_fields = ("descripcion", "rubro")
     autocomplete_fields = ("rubro",)
-    inlines = (DetalleDeItemInlineAdmin,)
+    inlines = (MaterialDeItemInlineAdmin, ServicioDeItemInlineAdmin)
     actions = None
 
     def editar(self, obj):
