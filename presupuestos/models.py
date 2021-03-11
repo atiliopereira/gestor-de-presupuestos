@@ -35,7 +35,7 @@ def get_siguiente_numero_de_presupuesto(user):
     ultimo_presupuesto = Presupuesto.objects.filter(cliente__creado_por=user).filter(fecha__year=anho) \
       .extra(select={"num" : "COALESCE(CAST(SUBSTRING(numero_de_presupuesto FROM '^[0-9]+') AS INTEGER), -1)"}) \
       .order_by("num", "numero_de_presupuesto").last()
-    numero = 0
+    numero = 1
 
     if ultimo_presupuesto:
         match = re.search("^\d+", ultimo_presupuesto.numero_de_presupuesto)
