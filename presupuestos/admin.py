@@ -20,7 +20,7 @@ class DetalleDePresupuestoInlineAdmin(admin.TabularInline):
 
 
 class PresupuestoAdmin(admin.ModelAdmin):
-    list_display = ('editar', 'ver', 'fecha', 'numero_de_presupuesto', 'obra', 'cliente', 'estado', 'imprimir')
+    list_display = ('editar', 'ver', 'fecha', 'numero_de_presupuesto', 'obra', 'cliente', 'estado', 'imprimir',)
     ordering = ('-fecha', )
     search_fields = ('numero_de_presupuesto', )
     inlines = (DetalleDePresupuestoInlineAdmin, )
@@ -57,7 +57,10 @@ class PresupuestoAdmin(admin.ModelAdmin):
         return mark_safe(html)
 
     def imprimir(self, obj):
-        html = '<a href="/admin/presupuestos/presupuesto_report/%s" class="icon-block"> <i class="fa fa-file-excel-o" style="color:green; font-size: 1.73em"></i></a>' % obj.pk
+        html = '<a href="/admin/presupuestos/presupuesto_report/%s" class="icon-block"> <i class="fa fa-file-excel-o" style="color:green; font-size: 1.73em; padding-left:10px"></i> Presupuesto</a>' % obj.pk
+        html += '<a href="/admin/presupuestos/presupuesto_servicios_report/%s" class="icon-block"> <i class="fa fa-file-excel-o" style="color:green; font-size: 1.73em; padding-left:30px"></i> Mano de Obra</a>' % obj.pk
+        html += '<a href="/admin/presupuestos/presupuesto_materiales_report/%s" class="icon-block"> <i class="fa fa-file-excel-o" style="color:green; font-size: 1.73em; padding-left:30px"></i> Materiales</a>' % obj.pk
+
         return mark_safe(html)
 
     def get_search_results(self, request, queryset, search_term):
