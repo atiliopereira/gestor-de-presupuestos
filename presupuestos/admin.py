@@ -20,7 +20,8 @@ class DetalleDePresupuestoInlineAdmin(admin.TabularInline):
 
 
 class PresupuestoAdmin(admin.ModelAdmin):
-    list_display = ('editar', 'ver', 'fecha', 'numero_de_presupuesto', 'obra', 'cliente', 'estado', 'imprimir',)
+    list_display = ('editar', 'ver', 'fecha', 'numero_de_presupuesto', \
+    'obra', 'cliente', 'estado', 'cambiar_estado', 'imprimir')
     ordering = ('-fecha', )
     search_fields = ('numero_de_presupuesto', )
     inlines = (DetalleDePresupuestoInlineAdmin, )
@@ -54,6 +55,14 @@ class PresupuestoAdmin(admin.ModelAdmin):
 
     def ver(self, obj):
         html = '<a href="/admin/presupuestos/presupuesto_detail/{}" class="icon-block"><i class="fa fa-eye"></i></a>'.format(obj.pk)
+        return mark_safe(html)
+
+    def cambiar_estado(self, obj):
+
+        if obj.estado == EstadoPresupuestos.PENDIENTE or obj.estado == EstadoPresupuestos.ENVIADO:
+            html = f'<a href="/admin/presupuestos/cambiar_estado_presupuesto/{obj.pk}" class="icon-block">CAMBIAR ESTADO</a>'
+        else:
+            html = ""
         return mark_safe(html)
 
     def imprimir(self, obj):
