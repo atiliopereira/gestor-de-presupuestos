@@ -4,7 +4,8 @@ import re
 from django.db import models
 
 from clientes.models import Cliente
-from items.models import Item
+from items.models import Item, MaterialDeItem, ServicioDeItem
+from materiales.models import Material
 from presupuestos.constants import EstadoPresupuestos
 from sistema.models import Ciudad
 
@@ -22,13 +23,41 @@ class Presupuesto(models.Model):
     def __str__(self):
         return f'Presupuesto Nº {self.numero_de_presupuesto} - {self.obra} ({self.cliente.nombre})'
 
+    def get_lista_de_recursos(self):
+        result = {}
+        detalles_de_presupuesto = DetalleDePresupuesto.objects.filter(presupuesto=self)
+        for dp in detalles_de_presupuesto:
+            for mi in MaterialDeItem.objects.filter(item=dp.item):
+                clave = f'm{mi.material.pk}'
+                if clave not in result:
+                    result[clave] = float(dp.cantidad) * mi.coeficiente
+                else:
+                    valor_anterior = result[clave]
+                    result[clave] = valor_anterior + float(dp.cantidad) * mi.coeficiente
+
+            for si in ServicioDeItem.objects.filter(item=dp.item):
+                clave = f's{si.servicio.pk}'
+                if clave not in result:
+                    result[clave] = float(dp.cantidad) * si.coeficiente
+                else:
+                    valor_anterior = result[clave]
+                    result[clave] = valor_anterior + float(dp.cantidad) * si.coeficiente
+        return result
+
 
 class DetalleDePresupuesto(models.Model):
     presupuesto = models.ForeignKey(Presupuesto, on_delete=models.CASCADE)
     item = models.ForeignKey(Item, on_delete=models.PROTECT)
     cantidad = models.FloatField(default=1)
     subtotal = models.DecimalField(max_digits=15, decimal_places=0, default=0)
-    
+
+    def get_recursos_de_detalle(self):
+        materiales = [[mi.material.descripcion, mi.coeficiente * self.cantidad, mi.material.unidad_de_medida.simbolo] for mi in
+                      MaterialDeItem.objects.filter(item=self.item)]
+        servicios = [[si.servicio.descripcion, si.coeficiente * self.cantidad, si.servicio.unidad_de_medida.simbolo] for si in
+                      ServicioDeItem.objects.filter(item=self.item)]
+        return materiales, servicios
+
 
 def get_siguiente_numero_de_presupuesto(user):
     anho = datetime.date.today().year
