@@ -1,0 +1,14 @@
+{% extends 'admin/custom_search_form.html' %}
+{% load i18n static admin_urls %}
+{% block custom_search_form %}
+    <strong>{{ asf.tipo.label }}:</strong> &nbsp;&nbsp;
+        {{ asf.tipo }} &nbsp;&nbsp;
+    <strong>{{ asf.ciudad.label }}:</strong> &nbsp;&nbsp;
+    {{ asf.ciudad }}
+    <br><br>
+     <strong>{{ asf.desde.label }}:</strong> &nbsp;&nbsp;
+        {{ asf.desde }}
+     <strong>{{ asf.hasta.label }}:</strong> &nbsp;&nbsp;
+        {{ asf.hasta }}
+    <br><br>
+{% endblock %}

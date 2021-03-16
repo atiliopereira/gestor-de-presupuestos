@@ -981,3 +981,7 @@ table#change-history tbody th {
     .panel-button {
   padding: 5px !important;
 }
+
+input[name="_addanother"],input[name="_continue"],input[name="_saveasnew"]{
+    display: none;
+}

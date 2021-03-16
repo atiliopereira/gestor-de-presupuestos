@@ -16,7 +16,7 @@ admin.site.register(Departamento, DepartamentoAdmin)
 
 
 class CiudadAdmin(admin.ModelAdmin):
-    list_display = ('nombre', 'departamento',)
+    list_display = ('id', 'nombre', 'departamento',)
     ordering = ('nombre', )
     search_fields = ('nombre', )
     list_filter = ('departamento', )

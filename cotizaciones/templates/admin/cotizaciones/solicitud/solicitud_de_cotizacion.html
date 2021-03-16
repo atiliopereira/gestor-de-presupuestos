@@ -1,0 +1,87 @@
+{% extends 'admin/base_site.html' %}
+
+
+{% block content %}
+    <style>
+        button {
+            background-color: #f44336;
+            border: none;
+            color: white;
+            padding: 10px 15px;
+            text-align: center;
+            text-decoration: none;
+            display: inline-block;
+            font-size: 12px;
+            border-radius: 4px;
+        }
+    </style>
+
+    <h1>Nro: {{ presupuesto.numero_de_presupuesto }}</h1>
+    <p>Cliente: {{ presupuesto.cliente }}</p>
+    <p>Obra: {{presupuesto.obra}}</p>
+
+    {% if detalles %}
+        <div class="w3-card-4" style="width:60%">
+            <table style="width: 100%">
+                <tr style="background-color: lightgrey">
+                    <th>Material</th>
+                    <th style="text-align: right">Cantidad</th>
+                    <th>Unidad</th>
+                    <th>Ítem</th>
+                </tr>
+
+                {% for detalle in detalles %}
+
+                    {% if tipo == '1' %}
+                        {% for material in detalle.get_recursos_de_detalle.0 %}
+                            <tr>
+                                <td>
+                                    {{ material.0.descripcion }}
+                                </td>
+                                <td style="text-align: right">
+                                    {{ material.1 | floatformat:"2" | default_if_none:"&nbsp;" }}
+                                </td>
+                                <td>
+                                    {{ material.0.unidad_de_medida.simbolo }}
+                                </td>
+                                <td>{{ detalle.item }}</td>
+                            </tr>
+                        {% endfor %}
+
+                    {% elif tipo == '2' %}
+                       {% for servicio in detalle.get_recursos_de_detalle.1 %}
+                           <tr>
+                                <td>
+                                    {{ servicio.0.descripcion }}
+                                </td>
+                                <td style="text-align: right">
+                                    {{ servicio.1 | floatformat:"2" | default_if_none:"&nbsp;" }}
+                                </td>
+                                <td>
+                                    {{ servicio.0.unidad_de_medida.simbolo }}
+                                </td>
+                                <td>{{ detalle.item }}</td>
+                           </tr>
+                       {% endfor %}
+
+                    {% endif %}
+
+                {% endfor %}
+            </table>
+        </div>
+
+    {% endif %}
+
+    <form action="" method="post"  style="padding-top: 1%">
+        {% csrf_token %}
+        <table>
+        {{ form }}
+        </table>
+        <div style="padding-top: 1%">
+            <button type="button" class="btn btn-primary" onclick="window.history.back(); return false;">Volver</button>
+            <input type="submit" value="Solicitar" />
+        </div>
+
+    </form>
+
+{% endblock %}
