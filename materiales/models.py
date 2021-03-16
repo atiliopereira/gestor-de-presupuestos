@@ -121,12 +121,6 @@ def get_precio_de_material(**kwargs):
         return None
 
 
-
-def get_file_path(instance):
-    file_path = f'archivos/planilla_de_precios_{instance.fecha}'
-    return file_path
-
-
 def actualizar_precios_de_materiales(actualizacion_de_precios):
     extension = os.path.splitext(actualizacion_de_precios.archivo.path)[-1].lower()
     if extension == ".xls" or extension == ".xlsx":

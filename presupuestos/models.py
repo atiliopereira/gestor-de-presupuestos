@@ -1,6 +1,7 @@
 import datetime
 import re
 
+from django.contrib.auth.models import User
 from django.db import models
 
 from clientes.models import Cliente
@@ -52,10 +53,10 @@ class DetalleDePresupuesto(models.Model):
     subtotal = models.DecimalField(max_digits=15, decimal_places=0, default=0)
 
     def get_recursos_de_detalle(self):
-        materiales = [[mi.material.descripcion, mi.coeficiente * self.cantidad, mi.material.unidad_de_medida.simbolo] for mi in
+        materiales = [[mi.material, mi.coeficiente * self.cantidad] for mi in
                       MaterialDeItem.objects.filter(item=self.item)]
-        servicios = [[si.servicio.descripcion, si.coeficiente * self.cantidad, si.servicio.unidad_de_medida.simbolo] for si in
-                      ServicioDeItem.objects.filter(item=self.item)]
+        servicios = [[si.servicio, si.coeficiente * self.cantidad] for si in
+                     ServicioDeItem.objects.filter(item=self.item)]
         return materiales, servicios
 
 
@@ -80,8 +81,11 @@ def get_siguiente_numero_de_revision(numero_de_presupuesto):
 
     if match:
         prefijo = numero_de_presupuesto[:match.start()]
-        sufijo  = numero_de_presupuesto[match.end():]
+        sufijo = numero_de_presupuesto[match.end():]
         num_revision = int(match.group()[1:]) + 1
         numero_de_presupuesto = "{}-{:#02d}{}".format(prefijo, num_revision, sufijo)
 
     return numero_de_presupuesto
+
+
+

@@ -1,6 +1,8 @@
 from django.contrib import admin
 from django.utils.safestring import mark_safe
 
+from cotizaciones.constants import TiposDeCotizacion
+from cotizaciones.models import Solicitud
 from presupuestos.forms import DetalleDePresupuestoForm, PresupuestoForm, PresupuestoSearchForm
 from presupuestos.models import DetalleDePresupuesto, Presupuesto
 from presupuestos.models import get_siguiente_numero_de_presupuesto, get_siguiente_numero_de_revision
@@ -19,9 +21,19 @@ class DetalleDePresupuestoInlineAdmin(admin.TabularInline):
             return 1
 
 
+class DetalleDePresupuestoAdmin(admin.ModelAdmin):
+    list_display = ('presupuesto', 'item', 'cantidad', 'subtotal')
+    search_fields = ('presupuesto', 'item')
+    autocomplete_fields = ('presupuesto', 'item')
+    actions = None
+
+
+admin.site.register(DetalleDePresupuesto, DetalleDePresupuestoAdmin)
+
+
 class PresupuestoAdmin(admin.ModelAdmin):
-    list_display = ('editar', 'ver', 'fecha', 'numero_de_presupuesto', \
-    'obra', 'cliente', 'estado', 'cambiar_estado', 'imprimir')
+    list_display = ('editar', 'ver', 'fecha', 'numero_de_presupuesto', 'obra', 'cliente', 'estado', 'cambiar_estado',
+                    'imprimir', 'cotizar_materiales', 'cotizar_servicios')
     ordering = ('-fecha', )
     search_fields = ('numero_de_presupuesto', )
     inlines = (DetalleDePresupuestoInlineAdmin, )
@@ -70,6 +82,22 @@ class PresupuestoAdmin(admin.ModelAdmin):
         html += '<a href="/admin/presupuestos/presupuesto_servicios_report/%s" class="icon-block"> <i class="fa fa-file-excel-o" style="color:green; font-size: 1.73em; padding-left:30px"></i> Mano de Obra</a>' % obj.pk
         html += '<a href="/admin/presupuestos/presupuesto_materiales_report/%s" class="icon-block"> <i class="fa fa-file-excel-o" style="color:green; font-size: 1.73em; padding-left:30px"></i> Materiales</a>' % obj.pk
 
+        return mark_safe(html)
+
+    def cotizar_materiales(self, obj):
+        tipo = TiposDeCotizacion.MATERIAL
+        html = 'Solicitado'
+        solicitudes = Solicitud.objects.filter(presupuesto=obj).filter(tipo=TiposDeCotizacion.MATERIAL)
+        if not solicitudes:
+            html = f'<a href="/admin/cotizaciones/solicitud/add/?next=/admin/cotizaciones/solicitud/&presupuesto={obj.pk}&tipo={tipo}" class="icon-block">SOLICITAR</a>'
+        return mark_safe(html)
+
+    def cotizar_servicios(self, obj):
+        tipo = TiposDeCotizacion.SERVICIOS
+        html = 'Solicitado'
+        solicitudes = Solicitud.objects.filter(presupuesto=obj).filter(tipo=TiposDeCotizacion.SERVICIOS)
+        if not solicitudes:
+            html = f'<a href="/admin/cotizaciones/solicitud/add/?next=/admin/cotizaciones/solicitud/&presupuesto={obj.pk}&tipo={tipo}" class="icon-block">SOLICITAR</a>'
         return mark_safe(html)
 
     def get_search_results(self, request, queryset, search_term):

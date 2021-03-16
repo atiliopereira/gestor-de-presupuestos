@@ -1,0 +1,9 @@
+{% extends "admin/change_list.html" %}
+{% load i18n admin_urls static admin_list %}
+{% load cotizacion_tags %}
+
+{% block search %}
+    {% solicitud_search_form cl %}
+{% endblock %}
+
+{% block object-tools %}{% endblock %}

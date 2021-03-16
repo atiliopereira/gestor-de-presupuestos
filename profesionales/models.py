@@ -39,7 +39,10 @@ class Proveedor(models.Model):
     email = models.EmailField(max_length=100, null=True, blank=True, verbose_name="e-mail")
 
     def __str__(self):
-        return f'{self.nombre}'
+        if self.ciudad:
+            return f'{self.nombre} | {self.ciudad.nombre}'
+        else:
+            return f'{self.nombre}'
 
     def get_materiales(self):
         materiales = [m.material.descripcion for m in MaterialProveedor.objects.filter(proveedor=self)]

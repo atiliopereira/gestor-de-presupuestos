@@ -6,7 +6,7 @@ from materiales.models import UnidadDeMedida, CategoriaDeMaterial, Material
 
 
 class UnidadDeMedidaAdmin(admin.ModelAdmin):
-    list_display = ('nombre', 'simbolo')
+    list_display = ('id', 'nombre', 'simbolo')
     ordering = ('nombre',)
     search_fields = ('nombre', 'simbolo')
 

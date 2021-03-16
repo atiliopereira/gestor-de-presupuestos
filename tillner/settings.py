@@ -47,6 +47,7 @@ INSTALLED_APPS = [
     'sistema',
     'profesionales',
     'servicios',
+    'cotizaciones',
 ]
 
 MIDDLEWARE = [
