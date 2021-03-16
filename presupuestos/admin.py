@@ -33,7 +33,7 @@ admin.site.register(DetalleDePresupuesto, DetalleDePresupuestoAdmin)
 
 class PresupuestoAdmin(admin.ModelAdmin):
     list_display = ('editar', 'ver', 'fecha', 'numero_de_presupuesto', 'obra', 'cliente', 'estado', 'cambiar_estado',
-                    'imprimir', 'cotizar_materiales', 'cotizar_servicios')
+                    'presupuesto', 'costeo', 'cotizar_materiales', 'cotizar_servicios')
     ordering = ('-fecha', )
     search_fields = ('numero_de_presupuesto', )
     inlines = (DetalleDePresupuestoInlineAdmin, )
@@ -77,11 +77,14 @@ class PresupuestoAdmin(admin.ModelAdmin):
             html = ""
         return mark_safe(html)
 
-    def imprimir(self, obj):
-        html = '<a href="/admin/presupuestos/presupuesto_report/%s" class="icon-block"> <i class="fa fa-file-excel-o" style="color:green; font-size: 1.73em; padding-left:10px"></i> Presupuesto</a>' % obj.pk
-        html += '<a href="/admin/presupuestos/presupuesto_servicios_report/%s" class="icon-block"> <i class="fa fa-file-excel-o" style="color:green; font-size: 1.73em; padding-left:30px"></i> Mano de Obra</a>' % obj.pk
-        html += '<a href="/admin/presupuestos/presupuesto_materiales_report/%s" class="icon-block"> <i class="fa fa-file-excel-o" style="color:green; font-size: 1.73em; padding-left:30px"></i> Materiales</a>' % obj.pk
+    def presupuesto(self, obj):
+        html = '<a href="/admin/presupuestos/presupuesto_pdf/%s" class="icon-block"> <i class="fa fa-file-pdf-o" style="color:red; font-size: 1.73em"></i></a>' % obj.pk
+        html += '<a href="/admin/presupuestos/presupuesto_excel/%s" class="icon-block"> <i class="fa fa-file-excel-o" style="color:green; font-size: 1.73em; padding-left:10px"></i></a>' % obj.pk
+        return mark_safe(html)
 
+    def costeo(self, obj):
+        html = '<a href="/admin/presupuestos/presupuesto_servicios_report/%s" class="icon-block"> <i class="fa fa-file-excel-o" style="color:green; font-size: 1.73em"></i> MDO</a>' % obj.pk
+        html += '<a href="/admin/presupuestos/presupuesto_materiales_report/%s" class="icon-block"> <i class="fa fa-file-excel-o" style="color:green; font-size: 1.73em"></i> MAT</a>' % obj.pk
         return mark_safe(html)
 
     def cotizar_materiales(self, obj):
