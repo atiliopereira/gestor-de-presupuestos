@@ -1,5 +1,6 @@
 from django.views.generic import TemplateView
 
+from cotizaciones.models import Solicitud
 from profesionales.models import Profesional, Proveedor
 
 
@@ -10,4 +11,5 @@ class ProfesionalesDashboardView(TemplateView):
         context = super(ProfesionalesDashboardView, self).get_context_data(**kwargs)
         context["total_profesionales"] = Profesional.objects.all().count()
         context["total_proveedores"] = Proveedor.objects.all().count()
+        context["total_solicitudes"] = Solicitud.objects.all().count()
         return context
