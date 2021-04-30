@@ -1,0 +1,62 @@
+{% extends 'admin/base_site.html' %}
+
+{% block extrastyle %}
+    <link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
+{% endblock %}
+
+{% block content %}
+    <style>
+        .w3-card-4 {
+          margin-bottom: 1%;
+        }
+        table {
+            width:100%;
+        }
+        tbody{
+            width: 100%;
+            display: table;
+        }
+        .label {
+            color: white;
+            padding: 2px;
+            font-weight: bold;
+            font-size: medium;
+            border-radius: 5px;
+        }
+    </style>
+    <h2 style="text-align:center; color: black">Registro</h2>
+    <div class="w3-card-4" style="width:60%;margin-left:auto;margin-right:auto;">
+        <div class="w3-container" style="padding: 3%">
+          <form method="post">
+            {% csrf_token %}
+            {% for field in signup_form %}
+                <p>
+                    {{ field.label_tag }}<br>
+                    {{ field }}
+                    {% if field.help_text %}
+                      <small style="color: grey">{{ field.help_text }}</small>
+                    {% endif %}
+                    {% for error in field.errors %}
+                      <p style="color: red">{{ error }}</p>
+                    {% endfor %}
+                </p>
+            {% endfor %}
+
+            {% for field in usuario_form %}
+                <p>
+                    {{ field.label_tag }}<br>
+                    {{ field }}
+                    {% if field.help_text %}
+                      <small style="color: grey">{{ field.help_text }}</small>
+                    {% endif %}
+                    {% for error in field.errors %}
+                      <p style="color: red">{{ error }}</p>
+                    {% endfor %}
+                </p>
+            {% endfor %}
+            <button type="submit" class="btn btn-info" style="background-color: #3F51B5">Registrarse</button>
+          </form>
+        </div>
+    </div>
+{% endblock %}
