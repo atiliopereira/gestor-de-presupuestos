@@ -25,6 +25,14 @@ class Presupuesto(models.Model):
         return f'Presupuesto Nº {self.numero_de_presupuesto} - {self.obra} ({self.cliente.nombre})'
 
     def get_lista_de_recursos(self):
+        """
+        Obtiene los materiales y servicios incluidos en todos los items del presupuesto
+
+        return: dict con el formato {m123: 10.5,}
+            key: Inicia con 'm'  o 's', seguido por el pk del material o servicio
+            value: cantidad resultante entre multiplicar la cantidad en el presupuesto por el coeficiente del item
+        """
+
         result = {}
         detalles_de_presupuesto = DetalleDePresupuesto.objects.filter(presupuesto=self)
         for dp in detalles_de_presupuesto:

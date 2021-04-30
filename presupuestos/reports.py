@@ -11,7 +11,7 @@ from materiales.models import get_precio_de_material, Material
 from presupuestos.models import Presupuesto, DetalleDePresupuesto
 from servicios.models import get_precio_de_servicio, Servicio
 from sistema.models import Usuario
-from tillner.globales import listview_to_excel, separar
+from tillner.globales import listview_to_excel, separar, truncate
 
 
 def presupuesto_excel(request, id):
@@ -33,7 +33,7 @@ def presupuesto_excel(request, id):
         lista_datos.append([
             dp.item.descripcion,
             dp.cantidad,
-            dp.item.unidad_de_medida.simbolo,
+            dp.item.unidad_de_medida.simbolo.lower(),
         ])
         lista_datos.append(["MAT/MDO", "Cantidad", "Unidad", "Precio Unit.", "Subtotal"])
         for mi in MaterialDeItem.objects.filter(item=dp.item).distinct('material'):
@@ -44,7 +44,7 @@ def presupuesto_excel(request, id):
             lista_datos.append([
                 mi.material.descripcion,
                 cantidad_total,
-                mi.material.unidad_de_medida.simbolo,
+                mi.material.unidad_de_medida.simbolo.lower(),
                 precio_de_material.precio,
                 total_material
             ])
@@ -56,7 +56,7 @@ def presupuesto_excel(request, id):
             lista_datos.append([
                 si.servicio.descripcion,
                 cantidad_total,
-                si.servicio.unidad_de_medida.simbolo,
+                si.servicio.unidad_de_medida.simbolo.lower(),
                 precio_de_servicio.precio,
                 total_servicio
             ])
@@ -89,7 +89,7 @@ def presupuesto_pdf(request, id):
         for dp in DetalleDePresupuesto.objects.filter(presupuesto=presupuesto):
             row -= 20
             canvas.setFont("Helvetica-Bold", 12)
-            canvas.drawString(30, row, f'{dp.item.descripcion}: {dp.cantidad} {dp.item.unidad_de_medida.simbolo}')
+            canvas.drawString(30, row, f'{dp.item.descripcion}: {dp.cantidad} {dp.item.unidad_de_medida.simbolo.lower()}')
 
             canvas.setLineWidth(1)
             canvas.line(30, row-2, 570, row-2)
@@ -109,8 +109,8 @@ def presupuesto_pdf(request, id):
 
                 canvas.setFont("Helvetica", 11)
                 canvas.drawString(30, row, f'{mi.material.descripcion}')
-                canvas.drawString(200, row, f'{cantidad_total}')
-                canvas.drawString(250, row, f'{mi.material.unidad_de_medida.simbolo}')
+                canvas.drawString(200, row, f'{truncate(cantidad_total, 2)}')
+                canvas.drawString(250, row, f'{mi.material.unidad_de_medida.simbolo.lower()}')
                 canvas.drawString(350, row, f'{separar(int(precio_de_material.precio))}')
                 canvas.drawString(480, row, f'{separar(int(total_material))}')
                 row -= 15
@@ -123,7 +123,7 @@ def presupuesto_pdf(request, id):
                 canvas.setFont("Helvetica", 11)
                 canvas.drawString(30, row, f'{si.servicio.descripcion}')
                 canvas.drawString(200, row, f'{cantidad_total}')
-                canvas.drawString(250, row, f'{si.servicio.unidad_de_medida.simbolo}')
+                canvas.drawString(250, row, f'{si.servicio.unidad_de_medida.simbolo.lower()}')
                 canvas.drawString(350, row, f'{separar(int(precio_de_servicio.precio))}')
                 canvas.drawString(480, row, f'{separar(int(total_servicio))}')
                 row -= 15
@@ -137,9 +137,6 @@ def presupuesto_pdf(request, id):
         canvas.setFont("Helvetica-Bold", 12)
         canvas.drawString(400, row, f'Total:')
         canvas.drawString(480, row, f'{separar(int(presupuesto.total))}')
-
-
-
 
     presupuesto = Presupuesto.objects.get(pk=id)
     response = HttpResponse(content_type='application/pdf')
@@ -155,25 +152,30 @@ def presupuesto_pdf(request, id):
     return response
 
 
-
 def presupuesto_materiales_report(request, id):
     presupuesto = Presupuesto.objects.get(pk=id)
     materiales = [item for item in presupuesto.get_lista_de_recursos().items() if item[0][0] == 'm']
     lista_datos = []
 
     for item in materiales:
+        # La estructura del item es: ('m1', 2.0)
+
         material_pk = int(item[0][1:])
         m = Material.objects.get(pk=material_pk)
+        precio_de_material = get_precio_de_material(material=m, ciudad=presupuesto.ciudad,
+                                                    fecha=presupuesto.fecha)
+        total_material = float(precio_de_material.precio) * item[1]
         lista_datos.append([
             m.descripcion,
             item[1],
-            m.unidad_de_medida.simbolo,
-            ''
+            m.unidad_de_medida.simbolo.lower(),
+            precio_de_material.precio,
+            total_material
         ])
     lista_datos.append([''])
     lista_datos.append(["Fecha:", presupuesto.fecha.strftime("%d/%m/%Y"), "Ciudad:", presupuesto.ciudad.nombre])
     nombre_archivo = f'materiales_{presupuesto.numero_de_presupuesto}'
-    titulos = ['Material', 'Cantidad Requerida', 'Unidad', 'Precio']
+    titulos = ['Material', 'Cantidad Requerida', 'Unidad', 'Precio Unit', 'Subtotal']
     response = listview_to_excel(lista_datos, nombre_archivo, titulos)
     return response
 
@@ -184,17 +186,23 @@ def presupuesto_servicios_report(request, id):
     lista_datos = []
 
     for item in servicios:
+        # La estructura del item es: ('m1', 2.0)
+
         servicio_pk = int(item[0][1:])
         s = Servicio.objects.get(pk=servicio_pk)
+        precio_de_servicio = get_precio_de_servicio(servicio=s, ciudad=presupuesto.ciudad,
+                                                    fecha=presupuesto.fecha)
+        total_servicio = float(precio_de_servicio.precio) * item[1]
         lista_datos.append([
             s.descripcion,
             item[1],
-            s.unidad_de_medida.simbolo,
-            ''
+            s.unidad_de_medida.simbolo.lower(),
+            precio_de_servicio.precio,
+            total_servicio
         ])
     lista_datos.append([''])
     lista_datos.append(["Fecha:", presupuesto.fecha.strftime("%d/%m/%Y"), "Ciudad:", presupuesto.ciudad.nombre])
     nombre_archivo = f'mano_de_obra_{presupuesto.numero_de_presupuesto}'
-    titulos = ['Servicio', 'Cantidad Requerida', 'Unidad', 'Precio']
+    titulos = ['Servicio', 'Cantidad Requerida', 'Unidad', 'Precio Unit', 'Subtotal']
     response = listview_to_excel(lista_datos, nombre_archivo, titulos)
     return response
