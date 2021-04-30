@@ -16,6 +16,7 @@ from tillner.globales import listview_to_excel, separar, truncate
 
 def presupuesto_excel(request, id):
     presupuesto = Presupuesto.objects.get(pk=id)
+    factor_de_margen = float(1 + presupuesto.margen_de_ganancia/100)
     nombre_archivo = f'{presupuesto.numero_de_presupuesto}'
     titulos = []
 
@@ -40,24 +41,24 @@ def presupuesto_excel(request, id):
             cantidad_total = float(dp.cantidad) * mi.coeficiente
             precio_de_material = get_precio_de_material(material=mi.material, ciudad=presupuesto.ciudad,
                                                         fecha=presupuesto.fecha)
-            total_material = float(precio_de_material.precio) * cantidad_total
+            total_material = float(precio_de_material.precio) * cantidad_total * factor_de_margen
             lista_datos.append([
                 mi.material.descripcion,
                 cantidad_total,
                 mi.material.unidad_de_medida.simbolo.lower(),
-                precio_de_material.precio,
+                float(precio_de_material.precio) * factor_de_margen,
                 total_material
             ])
         for si in ServicioDeItem.objects.filter(item=dp.item).distinct('servicio'):
             cantidad_total = float(dp.cantidad) * si.coeficiente
             precio_de_servicio = get_precio_de_servicio(servicio=si.servicio, ciudad=presupuesto.ciudad,
                                                         fecha=presupuesto.fecha)
-            total_servicio = float(precio_de_servicio.precio) * cantidad_total
+            total_servicio = float(precio_de_servicio.precio) * cantidad_total * factor_de_margen
             lista_datos.append([
                 si.servicio.descripcion,
                 cantidad_total,
                 si.servicio.unidad_de_medida.simbolo.lower(),
-                precio_de_servicio.precio,
+                float(precio_de_servicio.precio) * factor_de_margen,
                 total_servicio
             ])
         lista_datos.append(["", "", "", "Total del item:", dp.subtotal])
@@ -79,13 +80,20 @@ def presupuesto_pdf(request, id):
         canvas.drawString(30, 755, 'Cliente:')
         canvas.drawString(30, 740, 'Obra:')
         canvas.drawString(30, 725, 'Ciudad:')
+        canvas.drawString(30, 710, 'Validez:')
+        canvas.drawString(30, 695, 'Observaciones:')
         canvas.setFont("Helvetica", 12)
         canvas.drawString(100, 770, f'{presupuesto.fecha.strftime("%d/%m/%Y")}')
         canvas.drawString(100, 755, f'{presupuesto.cliente.nombre}')
         canvas.drawString(100, 740, f'{presupuesto.obra}')
         canvas.drawString(100, 725, f'{presupuesto.ciudad.nombre}')
+        canvas.drawString(100, 710, f'{presupuesto.validez_del_presupuesto} días')
+        observaciones = f'-'
+        if presupuesto.observaciones:
+            observaciones = presupuesto.observaciones
+        canvas.drawString(100, 695, f'{observaciones}')
 
-        row = 705
+        row = 680
         for dp in DetalleDePresupuesto.objects.filter(presupuesto=presupuesto):
             row -= 20
             canvas.setFont("Helvetica-Bold", 12)
@@ -105,13 +113,13 @@ def presupuesto_pdf(request, id):
                 cantidad_total = float(dp.cantidad) * mi.coeficiente
                 precio_de_material = get_precio_de_material(material=mi.material, ciudad=presupuesto.ciudad,
                                                             fecha=presupuesto.fecha)
-                total_material = float(precio_de_material.precio) * cantidad_total
+                total_material = float(precio_de_material.precio) * cantidad_total * factor_de_margen
 
                 canvas.setFont("Helvetica", 11)
                 canvas.drawString(30, row, f'{mi.material.descripcion}')
                 canvas.drawString(200, row, f'{truncate(cantidad_total, 2)}')
                 canvas.drawString(250, row, f'{mi.material.unidad_de_medida.simbolo.lower()}')
-                canvas.drawString(350, row, f'{separar(int(precio_de_material.precio))}')
+                canvas.drawString(350, row, f'{separar(int(float(precio_de_material.precio) * factor_de_margen))}')
                 canvas.drawString(480, row, f'{separar(int(total_material))}')
                 row -= 15
 
@@ -119,12 +127,12 @@ def presupuesto_pdf(request, id):
                 cantidad_total = float(dp.cantidad) * si.coeficiente
                 precio_de_servicio = get_precio_de_servicio(servicio=si.servicio, ciudad=presupuesto.ciudad,
                                                             fecha=presupuesto.fecha)
-                total_servicio = float(precio_de_servicio.precio) * cantidad_total
+                total_servicio = float(precio_de_servicio.precio) * cantidad_total * factor_de_margen
                 canvas.setFont("Helvetica", 11)
                 canvas.drawString(30, row, f'{si.servicio.descripcion}')
                 canvas.drawString(200, row, f'{cantidad_total}')
                 canvas.drawString(250, row, f'{si.servicio.unidad_de_medida.simbolo.lower()}')
-                canvas.drawString(350, row, f'{separar(int(precio_de_servicio.precio))}')
+                canvas.drawString(350, row, f'{separar(int(float(precio_de_servicio.precio) * factor_de_margen))}')
                 canvas.drawString(480, row, f'{separar(int(total_servicio))}')
                 row -= 15
 
@@ -132,13 +140,14 @@ def presupuesto_pdf(request, id):
             canvas.setFont("Helvetica-Bold", 11)
             canvas.drawString(400, row, f'Precio Item:')
             canvas.setFont("Helvetica", 11)
-            canvas.drawString(480, row, f'{separar(int(dp.subtotal))}')
+            canvas.drawString(480, row, f'{separar(int(float(dp.subtotal) * factor_de_margen))}')
         row -= 25
         canvas.setFont("Helvetica-Bold", 12)
         canvas.drawString(400, row, f'Total:')
-        canvas.drawString(480, row, f'{separar(int(presupuesto.total))}')
+        canvas.drawString(480, row, f'{separar(int(float(presupuesto.total) * factor_de_margen))}')
 
     presupuesto = Presupuesto.objects.get(pk=id)
+    factor_de_margen = float(1 + presupuesto.margen_de_ganancia / 100)
     response = HttpResponse(content_type='application/pdf')
     response['Content-Disposition'] = 'attachment; filename="presupuesto_report.pdf"'
     buffer = BytesIO()
