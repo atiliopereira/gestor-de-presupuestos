@@ -2,6 +2,7 @@ import datetime
 import re
 
 from django.contrib.auth.models import User
+from django.core.validators import MinValueValidator, MaxValueValidator
 from django.db import models
 
 from clientes.models import Cliente
@@ -20,6 +21,11 @@ class Presupuesto(models.Model):
     ciudad = models.ForeignKey(Ciudad, on_delete=models.PROTECT, null=True, blank=True)
     estado = models.CharField(max_length=3, choices=EstadoPresupuestos.ESTADOS, default=EstadoPresupuestos.PENDIENTE, editable=False)
     total = models.DecimalField(max_digits=15, decimal_places=0, default=0)
+    margen_de_ganancia = models.PositiveSmallIntegerField(default=0,
+                                                         validators=[MinValueValidator(0), MaxValueValidator(100)],
+                                                         help_text="0 a 100")
+    validez_del_presupuesto = models.PositiveSmallIntegerField(default=30, help_text="Vigencia en días")
+    observaciones = models.TextField(blank=True, null=True)
 
     def __str__(self):
         return f'Presupuesto Nº {self.numero_de_presupuesto} - {self.obra} ({self.cliente.nombre})'
@@ -52,6 +58,9 @@ class Presupuesto(models.Model):
                     valor_anterior = result[clave]
                     result[clave] = valor_anterior + float(dp.cantidad) * si.coeficiente
         return result
+
+    def total_con_ganancia(self):
+        return float(self.total) * (1 + float(self.margen_de_ganancia/100))
 
 
 class DetalleDePresupuesto(models.Model):

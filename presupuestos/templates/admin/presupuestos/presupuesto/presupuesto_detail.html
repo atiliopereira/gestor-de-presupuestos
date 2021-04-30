@@ -99,6 +99,16 @@
                         <td> {{ object.direccion }} </td>
                     </tr>
                 {% endif %}
+                <tr>
+                    <th scope="row"> Margen de ganancia </th>
+                    <td> {{ object.margen_de_ganancia }} % </td>
+                </tr>
+                {% if object.observaciones %}
+                    <tr>
+                        <th scope="row"> Observaciones </th>
+                        <td> {{ object.observaciones }} </td>
+                    </tr>
+                {% endif %}
               </tbody>
           </table>
         </div>
@@ -160,6 +170,7 @@
     
     {% endif %}
     <caption><h3 style="text-align:right; padding-right: 15%; color: black">Total: {{ object.total|floatformat:"0"|default_if_none:"&nbsp;" }}</h3></caption>
+    <caption><h3 style="text-align:right; padding-right: 15%; color: black">Total con margen: {{ object.total_con_ganancia|floatformat:"0"|default_if_none:"&nbsp;" }}</h3></caption>
     <button type="button" class="btn btn-primary" onclick="window.history.back(); return false;">Volver</button>
 
 {% endblock %}
