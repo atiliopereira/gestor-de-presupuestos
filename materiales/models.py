@@ -95,6 +95,10 @@ def registrar_fecha_de_fin_de_vigencia(material, ciudad, inicio_de_vigencia, sel
 
 
 def get_precio_de_material(**kwargs):
+    """"
+    La funcion recibe el material, la ciudad y la fecha.
+    :returns un valor del tipo PrecioDeMaterial con la fecha de inicio de vigencia mas reciente
+    """
     material = kwargs.get("material")
     ciudad = kwargs.get("ciudad")
 
@@ -116,9 +120,6 @@ def get_precio_de_material(**kwargs):
                 for p in precios:
                     if p.inicio_de_vigencia <= fecha:
                         return p
-
-    else:
-        return None
 
 
 def actualizar_precios_de_materiales(actualizacion_de_precios):

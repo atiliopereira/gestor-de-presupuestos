@@ -4,7 +4,7 @@ from django.test import TestCase
 from materiales.models import UnidadDeMedida, CategoriaDeMaterial, Material
 
 
-class UnidadDeMeididaTest(TestCase):
+class UnidadDeMedidaTest(TestCase):
 
     def crear_unidad_de_medida(self, nombre="hora/hombre", simbolo="hr/h"):
         return UnidadDeMedida.objects.create(nombre=nombre, simbolo=simbolo)

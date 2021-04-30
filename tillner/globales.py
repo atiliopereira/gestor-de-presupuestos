@@ -1,4 +1,5 @@
 import datetime
+import math
 import random
 from django.http import HttpResponse
 from django.utils.text import get_valid_filename
@@ -213,3 +214,7 @@ def convierte_cifra(numero, sw):
 
     return "%s %s %s" % (texto_centena, texto_decena, texto_unidad)
 
+
+def truncate(number, digits) -> float:
+    stepper = 10.0 ** digits
+    return math.trunc(stepper * number) / stepper
