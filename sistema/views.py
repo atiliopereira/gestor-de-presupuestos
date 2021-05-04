@@ -1,5 +1,5 @@
 from django.contrib.auth import login
-from django.contrib.auth.models import Group
+from django.contrib.auth.models import Group, Permission
 from django.db import transaction
 from django.shortcuts import render, redirect
 
@@ -16,8 +16,7 @@ def signup(request):
             user = signup_form.save()
             user.refresh_from_db()
             user.usuario.usuario.is_staff = True
-            # TODO: Controlar si no existe grupo
-            grupo = Group.objects.get(pk=1)
+            grupo, creado = Group.objects.get_or_create(name='usuarios')
             grupo.user_set.add(user.usuario.usuario)
             user.save()
 

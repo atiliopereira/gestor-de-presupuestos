@@ -1,7 +1,7 @@
 <div class="row">
              <div id="id_modulos" class="row" style="width:70%;margin-left:auto;margin-right:auto;">
                 {% if perms.presupuestos %}
-                     <div class="col-sm-6">
+                     <div class="col-sm-4">
                         <a href="/admin/presupuestos/presupuesto_dashboard">
                             <div class="card card-hover">
                                 <div class="box text-center" style="background-color: #5ca658">
@@ -17,13 +17,29 @@
                 {% endif %}
 
                 {% if perms.profesionales %}
-                     <div class="col-sm-6">
+                     <div class="col-sm-4">
                         <a href="/admin/profesionales/profesionales_dashboard">
                             <div class="card card-hover">
                                 <div class="box text-center" style="background-color: #a65c3b">
                                     <div class="box text-center" style="background-color: #a65c3b; padding: 10%">
                                         <h4><img class="font-light text-white"><img src="/static/img/contractor.svg"></h4>
                                         <h2 class="text-white">PROVEEDORES</h2>
+                                    </div>
+                                </div>
+                            </div>
+                        </a>
+                    </div>
+
+                {% endif %}
+
+                {% if perms.cotizaciones %}
+                     <div class="col-sm-4">
+                        <a href="/admin/cotizaciones/cotizaciones_dashboard">
+                            <div class="card card-hover">
+                                <div class="box text-center" style="background-color: #dd655b">
+                                    <div class="box text-center" style="background-color: #dd655b; padding: 10%">
+                                        <h4><img class="font-light text-white"><img src="/static/img/bank-statement.svg"></h4>
+                                        <h2 class="text-white">COTIZACIONES</h2>
                                     </div>
                                 </div>
                             </div>

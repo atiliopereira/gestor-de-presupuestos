@@ -101,6 +101,42 @@
         </div>
     {% endif %}
 
+    {% if cotizaciones %}
+        <caption><h4 style="text-align:center">Cotizaciones</h4></caption>
+        <div class="w3-card-4" style="width:60%;margin-left:auto;margin-right:auto;">
+            <table style="width: 100%">
+                    <tr style="background-color: lightgrey">
+                        <th>Fecha</th>
+                        <th>Oferente</th>
+                    </tr>
+                    {% for cotizacion in cotizaciones %}
+                        <tr>
+                            <td>
+                                <a href="/admin/cotizaciones/cotizacion_detail/{{ cotizacion.pk }}">
+                                    {{ cotizacion.fecha|date:"d/m/Y" }}
+                                </a>
+                            </td>
+                            <td>
+                               {{ cotizacion.creado_por }}
+                            </td>
+                        </tr>
+                    {% endfor %}
+
+            </table>
+        </div>
+    {% endif %}
+
+    <form action="" method="post" style="align-content: center">
+        {% csrf_token %}
+		<div align="right" style="width:60%;margin-left:auto;margin-right:auto; padding-top: 3%">
+            <div class="container">
+                <a href="/admin/cotizaciones/cotizacion/add/?next=/admin/cotizaciones/contizacion/&solicitud={{ object.pk }}" class="btn btn-primary"  style="background-color: #04AA6D; color: white; font-size: x-large; border-radius: 5px; padding: 1%">
+                    Cotizar {% if object.tipo == 'M' %}Materiales{% else %}Servicios{% endif %}
+                </a>
+            </div>
+		</div>
+	</form>
+    <br><br>
     <button type="button" class="btn btn-primary" onclick="window.history.back(); return false;">Volver</button>
 
 {% endblock %}
