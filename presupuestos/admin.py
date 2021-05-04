@@ -70,7 +70,6 @@ class PresupuestoAdmin(admin.ModelAdmin):
         return mark_safe(html)
 
     def cambiar_estado(self, obj):
-
         if obj.estado == EstadoPresupuestos.PENDIENTE or obj.estado == EstadoPresupuestos.ENVIADO:
             html = f'<a href="/admin/presupuestos/cambiar_estado_presupuesto/{obj.pk}" class="icon-block">CAMBIAR ESTADO</a>'
         else:

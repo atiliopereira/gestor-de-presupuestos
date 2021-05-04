@@ -3,9 +3,11 @@ import datetime
 from django.contrib.auth.models import User
 from django.db import models
 
-from cotizaciones.constants import TiposDeCotizacion
+from cotizaciones.constants import TiposDeCotizacion, EstadoDeSolicitud
+from materiales.models import Material
 from presupuestos.models import Presupuesto, DetalleDePresupuesto
 from profesionales.models import Proveedor, Profesional
+from servicios.models import Servicio
 
 
 def get_vencimiento_defautl():
@@ -27,6 +29,7 @@ class Solicitud(models.Model):
                                          help_text="Los proveedores seleccionados serán notificados de la solicitud de cotización")
     profesionales = models.ManyToManyField(Profesional, blank=True,
                                          help_text="Los profesionales seleccionados serán notificados de la solicitud de cotización")
+    estado = models.CharField(max_length=2, choices=EstadoDeSolicitud.ESTADOS, default=EstadoDeSolicitud.VIGENTE)
 
     def __str__(self):
         return f'Solicitud de cotización {self.pk} - {self.presupuesto.numero_de_presupuesto}'
@@ -34,6 +37,10 @@ class Solicitud(models.Model):
     def get_ciudad(self):
         return f'{self.presupuesto.ciudad.nombre}'
     get_ciudad.short_description = 'Ciudad'
+
+    def get_cotizaciones(self):
+        return Cotizacion.objects.filter(solicitud=self).count()
+    get_cotizaciones.short_description = "Cotizaciones recibidas"
 
 
 class DetalleDeSolicitud(models.Model):
@@ -49,3 +56,22 @@ class Cotizacion(models.Model):
     solicitud = models.ForeignKey(Solicitud, on_delete=models.CASCADE)
     archivo = models.FileField(upload_to='cotizaciones', null=True, blank=True)
     comentarios = models.TextField(max_length=1000, blank=True, null=True)
+    creado_por = models.ForeignKey(User, on_delete=models.PROTECT, editable=False)
+
+
+class MaterialDeCotizacion(models.Model):
+    class Meta:
+        verbose_name_plural = "Materiales de la Cotizaciones"
+    cotizacion = models.ForeignKey(Cotizacion, on_delete=models.CASCADE)
+    material = models.ForeignKey(Material, on_delete=models.PROTECT)
+    precio = models.DecimalField(max_digits=15, decimal_places=0, default=0, verbose_name="Precio Unitario",
+                                 help_text="Indicar el precio unitario")
+
+
+class ServicioDeCotizacion(models.Model):
+    class Meta:
+        verbose_name_plural = "Servicios de la Cotizaciones"
+    cotizacion = models.ForeignKey(Cotizacion, on_delete=models.CASCADE)
+    servicio = models.ForeignKey(Servicio, on_delete=models.PROTECT)
+    precio = models.DecimalField(max_digits=15, decimal_places=0, default=0, verbose_name="Precio Unitario",
+                                 help_text="Indicar el precio unitario")

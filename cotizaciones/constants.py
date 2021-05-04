@@ -9,3 +9,15 @@ class TiposDeCotizacion:
         (MATERIAL, 'Materiales'),
         (SERVICIOS, 'Mano de obra'),
     )
+
+
+class EstadoDeSolicitud:
+    VIGENTE = 'vi'
+    CONCRETADO = 'co'
+    CANCELADO = 'ca'
+
+    ESTADOS = (
+        (VIGENTE, 'Vigente'),
+        (CONCRETADO, 'Concretado'),
+        (CANCELADO, 'Cancelado')
+    )
