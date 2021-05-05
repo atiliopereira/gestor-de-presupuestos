@@ -69,11 +69,11 @@
 
 
     {% if object.solicitud.tipo == 'M' %}
-    <caption>
-        <h4 style="text-align:center">
-            Materiales
-        </h4>
-    </caption>
+        <caption>
+            <h4 style="text-align:center">
+                Materiales
+            </h4>
+        </caption>
 
         {% if materiales %}
             <div class="w3-card-4" style="width:60%;margin-left:auto;margin-right:auto;">
@@ -86,7 +86,7 @@
 
                         {% for mdc in materiales %}
                         <tr>
-                            <td>{{ mdc.material.descripcion }}</td>
+                            <td>{{ mdc.material }}</td>
                             <td>{{ mdc.material.unidad_de_medida.simbolo }}</td>
                             <td>{{ mdc.precio | floatformat:"0" | default_if_none:"&nbsp;" }}</td>
                         </tr>
@@ -94,8 +94,32 @@
                 </table>
             </div>
         {% endif %}
-    {% else %}
+    {% elif object.solicitud.tipo == 'S' %}
+        <caption>
+            <h4 style="text-align:center">
                 Servicios
+            </h4>
+        </caption>
+
+        {% if servicios %}
+            <div class="w3-card-4" style="width:60%;margin-left:auto;margin-right:auto;">
+                <table style="width: 100%">
+                        <tr style="background-color: lightgrey">
+                            <th>Descripción</th>
+                            <th>Unidad</th>
+                            <th>Precio Unitario</th>
+                        </tr>
+
+                        {% for sdc in servicios %}
+                        <tr>
+                            <td>{{ sdc.servicio }}</td>
+                            <td>{{ sdc.servicio.unidad_de_medida.simbolo }}</td>
+                            <td>{{ sdc.precio | floatformat:"0" | default_if_none:"&nbsp;" }}</td>
+                        </tr>
+                        {% endfor %}
+                </table>
+            </div>
+        {% endif %}
     {% endif %}
 
     <button type="button" class="btn btn-primary" onclick="window.history.back(); return false;">Volver</button>
