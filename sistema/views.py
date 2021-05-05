@@ -17,6 +17,10 @@ def signup(request):
             user.refresh_from_db()
             user.usuario.usuario.is_staff = True
             grupo, creado = Group.objects.get_or_create(name='usuarios')
+            if creado:
+                permisos = Permission.objects.all()
+                for permiso in permisos:
+                    grupo.permissions.add(permiso)
             grupo.user_set.add(user.usuario.usuario)
             user.save()
 
@@ -34,3 +38,4 @@ def signup(request):
         'signup_form': signup_form,
         'usuario_form': usuario_form,
     })
+
