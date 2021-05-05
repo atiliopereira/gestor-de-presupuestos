@@ -147,7 +147,7 @@
                                 {% for m in detalle.get_recursos_de_detalle.0 %}
                                     <ul>
                                         <li>
-                                            {{ m.0.descripcion }}: {{ m.1 | floatformat:"0" | default_if_none:"&nbsp;" }} {{ m.0.unidad_de_medida.simbolo }}
+                                            {{ m.0 }}: {{ m.1 | floatformat:"0" | default_if_none:"&nbsp;" }} {{ m.0.unidad_de_medida.simbolo }}
                                         </li>
                                     </ul>
                                 {% endfor %}
@@ -156,7 +156,7 @@
                                 {% for s in detalle.get_recursos_de_detalle.1 %}
                                     <ul>
                                         <li>
-                                            {{ s.0.descripcion }}: {{ s.1 | floatformat:"0" | default_if_none:"&nbsp;" }} {{ s.0.unidad_de_medida.simbolo }}
+                                            {{ s.0 }}: {{ s.1 | floatformat:"0" | default_if_none:"&nbsp;" }} {{ s.0.unidad_de_medida.simbolo }}
                                         </li>
                                     </ul>
                                 {% endfor %}

@@ -91,7 +91,7 @@
                     {% if detalles %}
                         {% for detalle in detalles %}
                         <tr>
-                            <td>{{ detalle.0.descripcion }} </td>
+                            <td>{{ detalle.0 }} </td>
                             <td style="text-align: right">{{ detalle.1 | floatformat:"0" | default_if_none:"&nbsp;" }}</td>
                             <td>{{ detalle.0.unidad_de_medida.simbolo }}</td>
                         </tr>

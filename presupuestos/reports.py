@@ -43,7 +43,7 @@ def presupuesto_excel(request, id):
                                                         fecha=presupuesto.fecha)
             total_material = float(precio_de_material.precio) * cantidad_total * factor_de_margen
             lista_datos.append([
-                mi.material.descripcion,
+                mi.material.__str__(),
                 cantidad_total,
                 mi.material.unidad_de_medida.simbolo.lower(),
                 float(precio_de_material.precio) * factor_de_margen,
@@ -55,7 +55,7 @@ def presupuesto_excel(request, id):
                                                         fecha=presupuesto.fecha)
             total_servicio = float(precio_de_servicio.precio) * cantidad_total * factor_de_margen
             lista_datos.append([
-                si.servicio.descripcion,
+                si.servicio.__str__(),
                 cantidad_total,
                 si.servicio.unidad_de_medida.simbolo.lower(),
                 float(precio_de_servicio.precio) * factor_de_margen,
@@ -116,7 +116,7 @@ def presupuesto_pdf(request, id):
                 total_material = float(precio_de_material.precio) * cantidad_total * factor_de_margen
 
                 canvas.setFont("Helvetica", 11)
-                canvas.drawString(30, row, f'{mi.material.descripcion}')
+                canvas.drawString(30, row, f'{mi.material.descripcion} ({mi.material.categoria})')
                 canvas.drawString(200, row, f'{truncate(cantidad_total, 2)}')
                 canvas.drawString(250, row, f'{mi.material.unidad_de_medida.simbolo.lower()}')
                 canvas.drawString(350, row, f'{separar(int(float(precio_de_material.precio) * factor_de_margen))}')
@@ -129,7 +129,7 @@ def presupuesto_pdf(request, id):
                                                             fecha=presupuesto.fecha)
                 total_servicio = float(precio_de_servicio.precio) * cantidad_total * factor_de_margen
                 canvas.setFont("Helvetica", 11)
-                canvas.drawString(30, row, f'{si.servicio.descripcion}')
+                canvas.drawString(30, row, f'{si.servicio.descripcion} ({si.servicio.categoria})')
                 canvas.drawString(200, row, f'{cantidad_total}')
                 canvas.drawString(250, row, f'{si.servicio.unidad_de_medida.simbolo.lower()}')
                 canvas.drawString(350, row, f'{separar(int(float(precio_de_servicio.precio) * factor_de_margen))}')
@@ -175,7 +175,7 @@ def presupuesto_materiales_report(request, id):
                                                     fecha=presupuesto.fecha)
         total_material = float(precio_de_material.precio) * item[1]
         lista_datos.append([
-            m.descripcion,
+            m.__str__(),
             item[1],
             m.unidad_de_medida.simbolo.lower(),
             precio_de_material.precio,
@@ -203,7 +203,7 @@ def presupuesto_servicios_report(request, id):
                                                     fecha=presupuesto.fecha)
         total_servicio = float(precio_de_servicio.precio) * item[1]
         lista_datos.append([
-            s.descripcion,
+            s.__str__(),
             item[1],
             s.unidad_de_medida.simbolo.lower(),
             precio_de_servicio.precio,
