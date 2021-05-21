@@ -2,7 +2,7 @@ import datetime
 import os
 
 import xlrd
-from django.db import models
+from django.db import models, transaction
 
 from sistema.models import Ciudad, get_ciudad_default
 
@@ -122,16 +122,32 @@ def get_precio_de_material(**kwargs):
                         return p
 
 
-def actualizar_precios_de_materiales(actualizacion_de_precios):
-    extension = os.path.splitext(actualizacion_de_precios.archivo.path)[-1].lower()
-    if extension == ".xls" or extension == ".xlsx":
-        doc = actualizacion_de_precios.archivo.path
+class ActualizacionDePreciosDeMateriales(models.Model):
+    class Meta:
+        verbose_name = "actualización de precios"
+        verbose_name_plural = "actualizaciones de precios"
+    fecha = models.DateField(default=datetime.date.today)
+    archivo = models.FileField(upload_to='planillas_de_precios', null=True, blank=True)
+    error = models.CharField(max_length=200, blank=True, null=True, editable=False)
+    lineas = models.PositiveSmallIntegerField(default=0, editable=False)
+    creados = models.PositiveSmallIntegerField(default=0, editable=False)
+    actualizados = models.PositiveSmallIntegerField(default=0, editable=False)
+
+
+def actualizar_precios_de_materiales(actualizacion):
+    error = ''
+    cant_lineas = 0
+    creados = []
+    actualizados = []
+    row = 0
+    extension = os.path.splitext(actualizacion.archivo.path)[-1].lower()
+    if extension == ".xls":
+        doc = actualizacion.archivo.path
         try:
             wb = xlrd.open_workbook(doc)
             sheet = wb.sheet_by_index(0)
             sheet.cell_value(0, 0)
-            actualizados = []
-            no_existen = []
+            cant_lineas = len(range(1, sheet.nrows))
             for row in range(1, sheet.nrows):
                 codigo = sheet.row_values(row)[0]
                 descripcion = sheet.row_values(row)[1]
@@ -141,29 +157,25 @@ def actualizar_precios_de_materiales(actualizacion_de_precios):
                 inicio_de_vigencia = xlrd.xldate_as_datetime(sheet.row_values(row)[6], 0).date()
 
                 material = Material.objects.filter(codigo=codigo).first()
-
                 if material:
-                    PrecioDeMaterial.objects.create(material=material, precio=precio,
-                                                    ciudad=ciudad, inicio_de_vigencia=inicio_de_vigencia)
-                    actualizados.append(material.codigo)
+                    actualizados.append(material)
                 else:
                     material = Material.objects.create(codigo=codigo, descripcion=descripcion,
                                                        unidad_de_medida=unidad_de_medida)
-                    PrecioDeMaterial.objects.create(material=material, ciudad=ciudad, precio=precio,
-                                                    inicio_de_vigencia=inicio_de_vigencia)
-            return actualizados, no_existen
+                    creados.append(material)
+                PrecioDeMaterial.objects.create(material=material, ciudad=ciudad, precio=precio,
+                                                inicio_de_vigencia=inicio_de_vigencia)
         except Exception as e:
-            print(f'Error: {e}')
-            return False
+            if row != 0:
+                error = f'Error en fila: {int(row) + 2}: {e}'
+            else:
+                error = e
+    actualizacion.error = error
+    actualizacion.lineas = cant_lineas
+    actualizacion.creados = len(creados)
+    actualizacion.actualizados = len(actualizados)
+    actualizacion.save(update_fields=['error', 'lineas', 'creados', 'actualizados'])
 
 
-class ActualizacionDePreciosDeMateriales(models.Model):
-    class Meta:
-        verbose_name = "actualización de precios"
-        verbose_name_plural = "actualizaciones de precios"
-    fecha = models.DateField(default=datetime.date.today)
-    archivo = models.FileField(upload_to='planillas_de_precios', null=True, blank=True)
 
-    def save(self, *args, **kwargs):
-        super(ActualizacionDePreciosDeMateriales, self).save(*args, **kwargs)
-        actualizar_precios_de_materiales(self)
+

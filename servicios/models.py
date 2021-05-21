@@ -64,8 +64,13 @@ class PrecioDeServicio(models.Model):
 
 
 def get_precio_de_servicio(**kwargs):
+    """"
+    La funcion recibe el servicio, la ciudad y la fecha.
+    :returns un valor del tipo PrecioDeServicio con la fecha de inicio de vigencia mas reciente
+    """
     servicio = kwargs.get("servicio")
     ciudad = kwargs.get("ciudad")
+
     if ciudad and servicio:
         fecha = kwargs.get("fecha") if 'fecha' in kwargs else datetime.date.today()
         precios = [precio for precio in
@@ -85,34 +90,6 @@ def get_precio_de_servicio(**kwargs):
                     if p.inicio_de_vigencia <= fecha:
                         return p
 
-    else:
-        return None
-
-
-def actualizar_precios_de_servicios(actualizacion_de_precios):
-    extension = os.path.splitext(actualizacion_de_precios.archivo.path)[-1].lower()
-    if extension == ".xls" or extension == ".xlsx":
-        doc = actualizacion_de_precios.archivo.path
-        try:
-            wb = xlrd.open_workbook(doc)
-            sheet = wb.sheet_by_index(0)
-            sheet.cell_value(0, 0)
-            actualizados = []
-            no_existen = []
-            for row in range(1, sheet.nrows):
-                servicio = Servicio.objects.filter(codigo=sheet.row_values(row)[0]).first()
-                if servicio:
-                    inicio_de_vigencia = xlrd.xldate_as_datetime(sheet.row_values(row)[4], 0).date()
-                    PrecioDeServicio.objects.create(servicio=servicio, precio=sheet.row_values(row)[2],
-                                                    inicio_de_vigencia=inicio_de_vigencia)
-                    actualizados.append(servicio.codigo)
-                else:
-                    no_existen.append(sheet.row_values(row)[0])
-            return actualizados, no_existen
-        except Exception as e:
-            print(f'Error: {e}')
-            return False
-
 
 class ActualizacionDePreciosDeServicios(models.Model):
     class Meta:
@@ -120,7 +97,49 @@ class ActualizacionDePreciosDeServicios(models.Model):
         verbose_name_plural = "actualizaciones de precios"
     fecha = models.DateField(default=datetime.date.today)
     archivo = models.FileField(upload_to='planillas_de_precios', null=True, blank=True)
+    error = models.CharField(max_length=200, blank=True, null=True, editable=False)
+    lineas = models.PositiveSmallIntegerField(default=0, editable=False)
+    creados = models.PositiveSmallIntegerField(default=0, editable=False)
+    actualizados = models.PositiveSmallIntegerField(default=0, editable=False)
 
-    def save(self, *args, **kwargs):
-        super(ActualizacionDePreciosDeServicios, self).save(*args, **kwargs)
-        actualizar_precios_de_servicios(self)
+
+def actualizar_precios_de_servicios(actualizacion):
+    error = ''
+    cant_lineas = 0
+    creados = []
+    actualizados = []
+    row = 0
+    extension = os.path.splitext(actualizacion.archivo.path)[-1].lower()
+    if extension == ".xls":
+        doc = actualizacion.archivo.path
+        try:
+            wb = xlrd.open_workbook(doc)
+            sheet = wb.sheet_by_index(0)
+            sheet.cell_value(0, 0)
+            cant_lineas = len(range(1, sheet.nrows))
+            for row in range(1, sheet.nrows):
+                codigo = sheet.row_values(row)[0]
+                descripcion = sheet.row_values(row)[1]
+                precio = sheet.row_values(row)[2]
+                ciudad = Ciudad.objects.get(pk=sheet.row_values(row)[4])
+                unidad_de_medida = UnidadDeMedida.objects.get(pk=sheet.row_values(row)[5])
+                inicio_de_vigencia = xlrd.xldate_as_datetime(sheet.row_values(row)[6], 0).date()
+
+                servicio = Servicio.objects.filter(codigo=sheet.row_values(row)[0]).first()
+                if servicio:
+                    actualizados.append(servicio.codigo)
+                else:
+                    servicio = Servicio.objects.create(codigo=codigo, descripcion=descripcion,
+                                                       unidad_de_medida=unidad_de_medida)
+                PrecioDeServicio.objects.create(servicio=servicio, ciudad=ciudad, precio=precio,
+                                                inicio_de_vigencia=inicio_de_vigencia)
+        except Exception as e:
+            if row != 0:
+                error = f'Error en fila: {int(row) + 2}: {e}'
+            else:
+                error = e
+    actualizacion.error = error
+    actualizacion.lineas = cant_lineas
+    actualizacion.creados = len(creados)
+    actualizacion.actualizados = len(actualizados)
+    actualizacion.save(update_fields=['error', 'lineas', 'creados', 'actualizados'])
