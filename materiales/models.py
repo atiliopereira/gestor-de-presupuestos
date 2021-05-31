@@ -163,8 +163,9 @@ def actualizar_precios_de_materiales(actualizacion):
                     material = Material.objects.create(codigo=codigo, descripcion=descripcion,
                                                        unidad_de_medida=unidad_de_medida)
                     creados.append(material)
-                PrecioDeMaterial.objects.create(material=material, ciudad=ciudad, precio=precio,
-                                                inicio_de_vigencia=inicio_de_vigencia)
+                with transaction.atomic():
+                    PrecioDeMaterial.objects.create(material=material, ciudad=ciudad, precio=precio,
+                                                    inicio_de_vigencia=inicio_de_vigencia)
         except Exception as e:
             if row != 0:
                 error = f'Error en fila: {int(row) + 2}: {e}'
@@ -175,7 +176,3 @@ def actualizar_precios_de_materiales(actualizacion):
     actualizacion.creados = len(creados)
     actualizacion.actualizados = len(actualizados)
     actualizacion.save(update_fields=['error', 'lineas', 'creados', 'actualizados'])
-
-
-
-
