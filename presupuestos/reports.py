@@ -4,6 +4,7 @@ from io import BytesIO
 
 from django.http import HttpResponse
 from reportlab.lib.units import inch
+from reportlab.pdfbase.pdfmetrics import stringWidth
 from reportlab.pdfgen import canvas
 
 from items.models import MaterialDeItem, ServicioDeItem
@@ -11,7 +12,7 @@ from materiales.models import get_precio_de_material, Material
 from presupuestos.models import Presupuesto, DetalleDePresupuesto
 from servicios.models import get_precio_de_servicio, Servicio
 from sistema.models import Usuario
-from tillner.globales import listview_to_excel, separar, truncate
+from tillner.globales import listview_to_excel, separar, truncate, number_to_right
 
 
 def presupuesto_excel(request, id):
@@ -71,8 +72,9 @@ def presupuesto_excel(request, id):
 def presupuesto_pdf(request, id):
     def contenido(canvas, presupuesto):
         usuario = Usuario.objects.get(pk=presupuesto.cliente.creado_por.pk)
-        rp = os.path.join(os.path.dirname(os.path.abspath(__file__)), usuario.logo.path)
-        canvas.drawInlineImage(rp, 460, 725, width=inch * 1.3, height=inch * 1.3)
+        if usuario.logo:
+            rp = os.path.join(os.path.dirname(os.path.abspath(__file__)), usuario.logo.path)
+            canvas.drawInlineImage(rp, 460, 725, width=inch * 1.3, height=inch * 1.3)
         canvas.setFont("Helvetica-Bold", 13)
         canvas.drawString(190, 790, f'Presupuesto Nº{presupuesto.numero_de_presupuesto}')
         canvas.setFont("Helvetica-Bold", 12)
@@ -81,7 +83,7 @@ def presupuesto_pdf(request, id):
         canvas.drawString(30, 740, 'Obra:')
         canvas.drawString(30, 725, 'Ciudad:')
         canvas.drawString(30, 710, 'Validez:')
-        canvas.drawString(30, 695, 'Observaciones:')
+        canvas.drawString(30, 695, 'Obs:')
         canvas.setFont("Helvetica", 12)
         canvas.drawString(100, 770, f'{presupuesto.fecha.strftime("%d/%m/%Y")}')
         canvas.drawString(100, 755, f'{presupuesto.cliente.nombre}')
@@ -104,10 +106,10 @@ def presupuesto_pdf(request, id):
             row -= 15
             canvas.setFont("Helvetica-Bold", 11)
             canvas.drawString(30, row, f'MAT/MDO')
-            canvas.drawString(180, row, f'Cantidad')
-            canvas.drawString(250, row, f'Unidad')
-            canvas.drawString(350, row, f'Precio Unitario')
-            canvas.drawString(480, row, f'Subtotal')
+            canvas.drawString(343, row, f'Cantidad')
+            canvas.drawString(403, row, f'Unidad')
+            canvas.drawString(452, row, f'Precio Unit.')
+            canvas.drawString(526, row, f'Subtotal')
             row -= 15
             for mi in MaterialDeItem.objects.filter(item=dp.item).distinct('material'):
                 cantidad_total = float(dp.cantidad) * mi.coeficiente
@@ -115,12 +117,25 @@ def presupuesto_pdf(request, id):
                                                             fecha=presupuesto.fecha)
                 total_material = float(precio_de_material.precio) * cantidad_total * factor_de_margen
 
-                canvas.setFont("Helvetica", 11)
-                canvas.drawString(30, row, f'{mi.material.descripcion} ({mi.material.categoria})')
-                canvas.drawString(200, row, f'{truncate(cantidad_total, 2)}')
-                canvas.drawString(250, row, f'{mi.material.unidad_de_medida.simbolo.lower()}')
-                canvas.drawString(350, row, f'{separar(int(float(precio_de_material.precio) * factor_de_margen))}')
-                canvas.drawString(480, row, f'{separar(int(total_material))}')
+                # Cantidades numéricas en letras
+                cant = f'{truncate(cantidad_total, 2)}'
+                pu = f'{number_to_right(separar(int(float(precio_de_material.precio) * factor_de_margen)))}'
+                st = f'{number_to_right(separar(int(total_material)))}'
+
+                canvas.setFont("Helvetica", 9)
+                descripcion = f'{mi.material.descripcion}'
+                canvas.drawString(30, row, (descripcion[:73] + '..') if len(descripcion) > 73 else descripcion)
+
+                canvas.drawString(418, row, f'{mi.material.unidad_de_medida.simbolo.lower()}')
+
+                # Posiciones en x calculadas según longitud de string
+                x_cant = 390 - stringWidth(cant, "Helvetica", 9)
+                x_pu = 513 - stringWidth(pu, "Helvetica", 9)
+                x_st = 570 - stringWidth(st, "Helvetica", 9)
+
+                canvas.drawString(x_cant, row, cant)
+                canvas.drawString(x_pu, row, pu)
+                canvas.drawString(x_st, row, st)
                 row -= 15
 
             for si in ServicioDeItem.objects.filter(item=dp.item).distinct('servicio'):
@@ -128,23 +143,47 @@ def presupuesto_pdf(request, id):
                 precio_de_servicio = get_precio_de_servicio(servicio=si.servicio, ciudad=presupuesto.ciudad,
                                                             fecha=presupuesto.fecha)
                 total_servicio = float(precio_de_servicio.precio) * cantidad_total * factor_de_margen
-                canvas.setFont("Helvetica", 11)
-                canvas.drawString(30, row, f'{si.servicio.descripcion} ({si.servicio.categoria})')
-                canvas.drawString(200, row, f'{cantidad_total}')
-                canvas.drawString(250, row, f'{si.servicio.unidad_de_medida.simbolo.lower()}')
-                canvas.drawString(350, row, f'{separar(int(float(precio_de_servicio.precio) * factor_de_margen))}')
-                canvas.drawString(480, row, f'{separar(int(total_servicio))}')
+
+                # Precios en letras
+                cant = f'{truncate(cantidad_total, 2)}'
+                pu = f'{number_to_right(separar(int(float(precio_de_servicio.precio) * factor_de_margen)))}'
+                st = f'{number_to_right(separar(int(total_servicio)))}'
+
+                canvas.setFont("Helvetica", 9)
+                descripcion = f'{si.servicio.descripcion}'
+                canvas.drawString(30, row, (descripcion[:73] + '..') if len(descripcion) > 73 else descripcion)
+
+                canvas.drawString(418, row, f'{si.servicio.unidad_de_medida.simbolo.lower()}')
+
+                # Posiciones en x calculadas según longitud de string
+                x_cant = 390 - stringWidth(cant, "Helvetica", 9)
+                x_pu = 513 - stringWidth(pu, "Helvetica", 9)
+                x_st = 570 - stringWidth(st, "Helvetica", 9)
+
+                canvas.drawString(x_cant, row, cant)
+                canvas.drawString(x_pu, row, pu)
+                canvas.drawString(x_st, row, st)
                 row -= 15
 
             canvas.line(30, row + 12, 570, row + 12)
             canvas.setFont("Helvetica-Bold", 11)
             canvas.drawString(400, row, f'Precio Item:')
             canvas.setFont("Helvetica", 11)
-            canvas.drawString(480, row, f'{separar(int(float(dp.subtotal) * factor_de_margen))}')
+            precio_item = f'{number_to_right(separar(int(float(dp.subtotal) * factor_de_margen)))}'
+            px = 570 - stringWidth(precio_item, "Helvetica", 11)
+            canvas.drawString(px, row, precio_item)
+        canvas.line(30, row - 10, 570, row - 10)
+        canvas.line(30, row - 12, 570, row - 12)
         row -= 25
         canvas.setFont("Helvetica-Bold", 12)
+        precio_total = f'{number_to_right(separar(int(float(presupuesto.total) * factor_de_margen)))}'
+        px = 570 - stringWidth(precio_total, "Helvetica-Bold", 12)
         canvas.drawString(400, row, f'Total:')
-        canvas.drawString(480, row, f'{separar(int(float(presupuesto.total) * factor_de_margen))}')
+        canvas.drawString(px, row, precio_total)
+
+        canvas.setFont("Helvetica", 8)
+        # 396 para justificar a la derecha
+        canvas.drawString(30, 10, f'Presupuesto creado en construyaenlinea.com.py')
 
     presupuesto = Presupuesto.objects.get(pk=id)
     factor_de_margen = float(1 + presupuesto.margen_de_ganancia / 100)

@@ -73,7 +73,7 @@
                 {% for material in materiales %}
                 <tr>
                     <td>
-                        <a href="/admin/materiales/material_detail/{{ detalle.material.pk|eliminar_separador_miles }}">{{ material.material.descripcion }}</a>
+                        <a href="/admin/materiales/material_detail/{{ material.pk|eliminar_separador_miles }}">{{ material.material.descripcion }}</a>
                     </td>
                     <td style="padding-left: 5em">{{ material.coeficiente }}</td>
                 </tr>

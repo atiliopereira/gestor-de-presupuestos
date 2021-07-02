@@ -10,7 +10,7 @@ from presupuestos.constants import EstadoPresupuestos
 from presupuestos.views import get_presupuestos_queryset
 
 
-class DetalleDePresupuestoInlineAdmin(admin.TabularInline):
+class DetalleDePresupuestoInline(admin.TabularInline):
     model = DetalleDePresupuesto
     form = DetalleDePresupuestoForm
 
@@ -20,7 +20,20 @@ class DetalleDePresupuestoInlineAdmin(admin.TabularInline):
         else:
             return 1
 
+    def get_formset(self, request, obj=None, **kwargs):
+        """
+        Override the formset function in order to remove the add and change buttons beside the foreign key pull-down
+        menus in the inline.
+        """
+        formset = super(DetalleDePresupuestoInline, self).get_formset(request, obj, **kwargs)
+        form = formset.form
+        widget = form.base_fields['item'].widget
+        widget.can_add_related = False
+        widget.can_change_related = False
+        return formset
 
+
+# This registration is needed in order to use autocomplete with the item model
 class DetalleDePresupuestoAdmin(admin.ModelAdmin):
     list_display = ('presupuesto', 'item', 'cantidad', 'subtotal')
     search_fields = ('presupuesto', 'item')
@@ -36,7 +49,7 @@ class PresupuestoAdmin(admin.ModelAdmin):
                     'presupuesto', 'costeo', 'cotizar_materiales', 'cotizar_servicios')
     ordering = ('-fecha', )
     search_fields = ('numero_de_presupuesto', )
-    inlines = (DetalleDePresupuestoInlineAdmin, )
+    inlines = (DetalleDePresupuestoInline, )
     autocomplete_fields = ('cliente', )
     form = PresupuestoForm
     actions = None

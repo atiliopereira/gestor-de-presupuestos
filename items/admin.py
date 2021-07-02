@@ -28,7 +28,7 @@ admin.site.register(Rubro, RubroAdmin)
 class ItemAdmin(admin.ModelAdmin):
     ordering = ("descripcion",)
     list_display = ('editar', 'ver', "descripcion", "unidad_de_medida", "rubro")
-    search_fields = ("descripcion", "rubro")
+    search_fields = ("descripcion", )
     autocomplete_fields = ("rubro",)
     inlines = (MaterialDeItemInlineAdmin, ServicioDeItemInlineAdmin)
     actions = None
@@ -40,6 +40,12 @@ class ItemAdmin(admin.ModelAdmin):
     def ver(self, obj):
         html = '<a href="/admin/items/item_detail/{}" class="icon-block"><i class="fa fa-eye"></i></a>'.format(obj.pk)
         return mark_safe(html)
+
+    def has_delete_permission(self, request, obj=None):
+        if request.user.is_superuser:
+            return True
+        else:
+            return False
 
 
 admin.site.register(Item, ItemAdmin)

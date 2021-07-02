@@ -1,0 +1,21 @@
+/* CARDS */
+.w3-card-4 {
+      margin-bottom: 1%;
+}
+table {
+    width:100%;
+}
+td {
+    border: none;
+}
+tbody{
+    width: 100%;
+    display: table;
+}
+.label {
+    color: white;
+    padding: 2px;
+    font-weight: bold;
+    font-size: medium;
+    border-radius: 5px;
+}
