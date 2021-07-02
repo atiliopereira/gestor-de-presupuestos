@@ -143,7 +143,7 @@ def numero_to_letras(numero):
     indicador = [("", ""), ("MIL", "MIL"), ("MILLON", "MILLONES"), ("MIL", "MIL"), ("BILLON", "BILLONES")]
     entero = int(numero)
     decimal = int(round((numero - entero) * 100))
-    # print 'decimal : ',decimal
+
     contador = 0
     numero_letras = ""
     while entero > 0:
@@ -218,3 +218,14 @@ def convierte_cifra(numero, sw):
 def truncate(number, digits) -> float:
     stepper = 10.0 ** digits
     return math.trunc(stepper * number) / stepper
+
+
+def number_to_right(str_number):
+    '''
+    :param str_number: number in string format (with dot for thousands separators)
+    :return: string with standard length (13 characters), to justify to right
+    '''
+    add = ''
+    for _ in range(13 - len(str_number)):
+        add += ' '
+    return f'{add}{str_number}'

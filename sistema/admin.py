@@ -23,6 +23,24 @@ class CiudadAdmin(admin.ModelAdmin):
     list_filter = ('departamento', )
     actions = None
 
+    def has_delete_permission(self, request, obj=None):
+        if request.user.is_superuser:
+            return True
+        else:
+            return False
+
+    def has_add_permission(self, request):
+        if request.user.is_superuser:
+            return True
+        else:
+            return False
+
+    def has_change_permission(self, request, obj=None):
+        if request.user.is_superuser:
+            return True
+        else:
+            return False
+
 
 admin.site.register(Ciudad, CiudadAdmin)
 

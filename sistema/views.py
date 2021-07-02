@@ -38,4 +38,3 @@ def signup(request):
         'signup_form': signup_form,
         'usuario_form': usuario_form,
     })
-

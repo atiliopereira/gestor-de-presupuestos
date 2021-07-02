@@ -12,7 +12,7 @@ from django.views.decorators.cache import never_cache
 
 
 class MyAdminSite(AdminSite):
-    site_header = 'Costo de Obra'
+    site_header = 'Construya en línea'
 
     @never_cache
     def index(self, request, extra_context=None):

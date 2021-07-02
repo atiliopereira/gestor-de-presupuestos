@@ -30,7 +30,8 @@ class DetalleDePresupuestoForm(forms.ModelForm):
         fields = ('item', 'cantidad', 'precio_unitario', 'subtotal')
 
         widgets = {
-           "item": autocomplete.Select2(url="item-autocomplete"),
+           "item": autocomplete.Select2(url="item-autocomplete",
+                                        attrs={'data-dropdown-auto-width': 'true', 'style': "width: 100%;"}),
             "subtotal": forms.TextInput(
                 attrs={'style': 'text-align:right', 'size': '12', 'class': 'auto', 'data-a-sep': '.',
                        'data-a-dec': ','}),
