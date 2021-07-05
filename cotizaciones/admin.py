@@ -1,17 +1,17 @@
 from django.contrib import admin
-from django.http import HttpResponseRedirect
 from django.utils.safestring import mark_safe
 
-from cotizaciones.constants import TiposDeCotizacion, EstadoDeSolicitud
-from cotizaciones.forms import SolicitudSearchForm, SolicitudForm, CotizacionForm, MaterialDeCotizacionForm, \
-    ServicioDeCotizacionForm
-from cotizaciones.models import DetalleDeSolicitud, Solicitud, Cotizacion, MaterialDeCotizacion, ServicioDeCotizacion
+from cotizaciones.constants import EstadoDeSolicitud
+from cotizaciones.forms import SolicitudSearchForm, SolicitudForm, MaterialDeSolicitudForm, \
+    ServicioDeSolicitudForm
+from cotizaciones.models import Solicitud, MaterialDeSolicitud, ServicioDeSolicitud
 from cotizaciones.views import get_solicitudes_queryset
 
 
-class DetalleDeSolicitudInlineAdmin(admin.TabularInline):
-    model = DetalleDeSolicitud
-    autocomplete_fields = ('detalle_de_presupuesto', )
+class MaterialDeSolicitudInline(admin.TabularInline):
+    model = MaterialDeSolicitud
+    form = MaterialDeSolicitudForm
+    autocomplete_fields = ('material',)
 
     def get_extra(self, request, obj=None, **kwargs):
         if obj:
@@ -19,18 +19,57 @@ class DetalleDeSolicitudInlineAdmin(admin.TabularInline):
         else:
             return 1
 
+    def get_formset(self, request, obj=None, **kwargs):
+        """
+        Override the formset function in order to remove the add, change and remove buttons beside the foreign
+        key pull-down menus in the inline.
+        """
+        formset = super(MaterialDeSolicitudInline, self).get_formset(request, obj, **kwargs)
+        form = formset.form
+        widget = form.base_fields['material'].widget
+        widget.can_add_related = False
+        widget.can_change_related = False
+        widget.can_delete_related = False
+        return formset
+
+
+class ServicioDeSolicitudInline(admin.TabularInline):
+    model = ServicioDeSolicitud
+    form = ServicioDeSolicitudForm
+    autocomplete_fields = ('servicio',)
+
+    def get_extra(self, request, obj=None, **kwargs):
+        if obj:
+            return 0
+        else:
+            return 1
+
+    def get_formset(self, request, obj=None, **kwargs):
+        """
+        Override the formset function in order to remove the add, change and remove buttons beside the foreign
+        key pull-down menus in the inline.
+        """
+        formset = super(ServicioDeSolicitudInline, self).get_formset(request, obj, **kwargs)
+        form = formset.form
+        widget = form.base_fields['servicio'].widget
+        widget.can_add_related = False
+        widget.can_change_related = False
+        widget.can_delete_related = False
+        return formset
+
 
 class SolicitudAdmin(admin.ModelAdmin):
     class Media:
         js = ('//ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js', 'solicitud.js',)
-    list_display = ('ver', 'id', 'fecha', 'vencimiento', 'tipo', 'get_ciudad', 'get_cotizaciones', 'estado',
-                    'concretar', 'cancelar')
-    search_fields = ('presupuesto', )
-    autocomplete_fields = ('presupuesto', )
+    list_display = ('ver', 'id', 'fecha', 'vencimiento', 'tipo', 'estado', 'concretar', 'cancelar')
     form = SolicitudForm
-    filter_horizontal = ('proveedores', 'profesionales')
-    inlines = (DetalleDeSolicitudInlineAdmin, )
+    inlines = (MaterialDeSolicitudInline, ServicioDeSolicitudInline)
     actions = None
+
+    def save_model(self, request, obj, form, change):
+        if not change:
+            obj.creado_por = request.user
+        obj.save()
 
     def ver(self, obj):
         html = '<a href="/admin/cotizaciones/solicitud_detail/{}" class="icon-block"><i class="fa fa-eye"></i></a>'.format(obj.pk)
@@ -96,139 +135,4 @@ class SolicitudAdmin(admin.ModelAdmin):
 
 
 admin.site.register(Solicitud, SolicitudAdmin)
-
-
-class MaterialDeCotizacionInlineAdmin(admin.TabularInline):
-    model = MaterialDeCotizacion
-    form = MaterialDeCotizacionForm
-    max_num = 0
-
-    def get_extra(self, request, obj=None, **kwargs):
-        return 0
-
-    def get_formset(self, request, obj=None, **kwargs):
-        """
-        Override the formset function in order to remove the add, change and remove buttons beside the foreign
-        key pull-down menus in the inline.
-        """
-        formset = super(MaterialDeCotizacionInlineAdmin, self).get_formset(request, obj, **kwargs)
-        form = formset.form
-        widget = form.base_fields['material'].widget
-        widget.can_add_related = False
-        widget.can_change_related = False
-        widget.can_delete_related = False
-        return formset
-
-
-class ServicioDeCotizacionInlineAdmin(admin.TabularInline):
-    model = ServicioDeCotizacion
-    form = ServicioDeCotizacionForm
-    max_num = 0
-
-    def get_extra(self, request, obj=None, **kwargs):
-        return 0
-
-    def get_formset(self, request, obj=None, **kwargs):
-        """
-        Override the formset function in order to remove the add, change and remove buttons beside the foreign
-        key pull-down menus in the inline.
-        """
-        formset = super(ServicioDeCotizacionInlineAdmin, self).get_formset(request, obj, **kwargs)
-        form = formset.form
-        widget = form.base_fields['servicio'].widget
-        widget.can_add_related = False
-        widget.can_change_related = False
-        widget.can_delete_related = False
-        return formset
-
-
-class CotizacionAdmin(admin.ModelAdmin):
-    list_display = ('ver', 'fecha', 'solicitud')
-    autocomplete_fields = ('solicitud',)
-    actions = None
-    form = CotizacionForm
-
-    class Media:
-        js = ('cotizacion.js', '//ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js')
-
-    def ver(self, obj):
-        html = '<a href="/admin/cotizaciones/cotizacion_detail/{}" class="icon-block"><i class="fa fa-eye"></i></a>'.format(obj.pk)
-        return mark_safe(html)
-
-    def save_model(self, request, obj, form, change):
-        if not change:
-            obj.creado_por = request.user
-        obj.save()
-
-    def get_queryset(self, request):
-        return Cotizacion.objects.filter(creado_por=request.user)
-
-    def response_add(self, request, obj, **kwargs):
-        if "_generar-items" in request.POST:
-            obj.save()
-            materiales_generados = MaterialDeCotizacion.objects.filter(cotizacion=obj)
-            servicios_generados = ServicioDeCotizacion.objects.filter(cotizacion=obj)
-
-            if materiales_generados or servicios_generados:
-                self.message_user(request, "Los items de la cotización ya fueron creados")
-            else:
-                try:
-                    filtro = 'm' if obj.solicitud.tipo == TiposDeCotizacion.MATERIAL else 's'
-                    detalles_en_solicitud = [item for item in obj.solicitud.presupuesto.get_lista_de_recursos().items() if
-                             item[0][0] == filtro]
-
-                    tipo_de_items = 'Materiales'
-                    if filtro == 'm':
-                        for m in detalles_en_solicitud:
-                            MaterialDeCotizacion.objects.create(cotizacion=obj, material_id=int(m[0][1:]))
-                    elif filtro == 's':
-                        tipo_de_items = 'Servicios'
-                        for s in detalles_en_solicitud:
-                            ServicioDeCotizacion.objects.create(cotizacion=obj, servicio_id=int(s[0][1:]))
-
-                    self.message_user(request, f'{tipo_de_items} generados con éxito')
-                except Exception as e:
-                    self.message_user(request, "Error: %s" % str(e))
-            return HttpResponseRedirect("/admin/cotizaciones/cotizacion/%s/change/" % obj.pk)
-        return super().response_change(request, obj)
-
-    def response_change(self, request, obj):
-        if "_generar-items" in request.POST:
-            materiales_generados = MaterialDeCotizacion.objects.filter(cotizacion=obj)
-            servicios_generados = ServicioDeCotizacion.objects.filter(cotizacion=obj)
-
-            if materiales_generados or servicios_generados:
-                self.message_user(request, "Los items de la cotización ya fueron creados")
-            else:
-                try:
-                    filtro = 'm' if obj.solicitud.tipo == TiposDeCotizacion.MATERIAL else 's'
-                    detalles_en_solicitud = [item for item in obj.solicitud.presupuesto.get_lista_de_recursos().items()
-                                             if
-                                             item[0][0] == filtro]
-
-                    tipo_de_items = 'Materiales'
-                    if filtro == 'm':
-                        for m in detalles_en_solicitud:
-                            MaterialDeCotizacion.objects.create(cotizacion=obj, material_id=int(m[0][1:]))
-                    elif filtro == 's':
-                        tipo_de_items = 'Servicios'
-                        for s in detalles_en_solicitud:
-                            ServicioDeCotizacion.objects.create(cotizacion=obj, servicio_id=int(s[0][1:]))
-
-                    self.message_user(request, f'{tipo_de_items} generados con éxito')
-                except Exception as e:
-                    self.message_user(request, "Error: %s" % str(e))
-            return HttpResponseRedirect("/admin/cotizaciones/cotizacion/%s/change/" % obj.pk)
-        return super().response_change(request, obj)
-
-    def change_view(self, request, object_id, form_url='', extra_context=None):
-        cotizacion = Cotizacion.objects.get(id=object_id)
-        if cotizacion.solicitud.tipo == TiposDeCotizacion.MATERIAL:
-            self.inlines = (MaterialDeCotizacionInlineAdmin, )
-        elif cotizacion.solicitud.tipo == TiposDeCotizacion.SERVICIOS:
-            self.inlines = (ServicioDeCotizacionInlineAdmin, )
-        return super(CotizacionAdmin, self).change_view(request, object_id, form_url, extra_context)
-
-
-admin.site.register(Cotizacion, CotizacionAdmin)
 

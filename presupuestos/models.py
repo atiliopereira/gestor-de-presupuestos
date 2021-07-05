@@ -18,7 +18,7 @@ class Presupuesto(models.Model):
     numero_de_presupuesto = models.CharField(max_length=100, verbose_name="Número de presupuesto", editable=False)
     obra = models.CharField(max_length=250, help_text="Nombre o Descripción")
     direccion = models.CharField(max_length=300, verbose_name="Dirección", blank=True, null=True)
-    ciudad = models.ForeignKey(Ciudad, on_delete=models.PROTECT, null=True, blank=True)
+    ciudad = models.ForeignKey(Ciudad, on_delete=models.PROTECT)
     estado = models.CharField(max_length=3, choices=EstadoPresupuestos.ESTADOS, default=EstadoPresupuestos.PENDIENTE, editable=False)
     total = models.DecimalField(max_digits=15, decimal_places=0, default=0)
     margen_de_ganancia = models.PositiveSmallIntegerField(default=0,
