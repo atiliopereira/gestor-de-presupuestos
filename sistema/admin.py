@@ -1,6 +1,8 @@
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
 from django.contrib.auth.models import User
+from django.shortcuts import redirect
+from django.utils.translation import gettext_lazy as _
 
 from sistema.forms import UsuarioForm
 from sistema.models import Departamento, Ciudad, Usuario
@@ -53,6 +55,17 @@ class UsuarioInline(admin.StackedInline):
 
 class UserAdmin(BaseUserAdmin):
     inlines = (UsuarioInline,)
+
+    def change_view(self, request, object_id, form_url='', extra_context=None):
+        if not request.user.is_superuser:
+            self.fieldsets = (
+                (None, {'fields': ('username', 'password')}),
+                (_('Personal info'), {'fields': ('first_name', 'last_name', 'email')}),
+            )
+        return super(UserAdmin, self).change_view(request, object_id, form_url, extra_context)
+
+    def response_change(self, request, obj):
+        return redirect('/admin/presupuestos/presupuesto_dashboard/')
 
 
 admin.site.unregister(User)
