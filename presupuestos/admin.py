@@ -46,11 +46,11 @@ admin.site.register(DetalleDePresupuesto, DetalleDePresupuestoAdmin)
 
 class PresupuestoAdmin(admin.ModelAdmin):
     list_display = ('editar', 'ver', 'fecha', 'numero_de_presupuesto', 'obra', 'cliente', 'estado', 'cambiar_estado',
-                    'presupuesto', 'costeo', 'cotizar_materiales', 'cotizar_servicios')
-    ordering = ('-fecha', )
-    search_fields = ('numero_de_presupuesto', )
-    inlines = (DetalleDePresupuestoInline, )
-    autocomplete_fields = ('cliente', )
+                    'presupuesto', 'costeo',)
+    ordering = ('-fecha',)
+    search_fields = ('numero_de_presupuesto',)
+    inlines = (DetalleDePresupuestoInline,)
+    autocomplete_fields = ('cliente',)
     form = PresupuestoForm
     actions = None
 
@@ -75,11 +75,13 @@ class PresupuestoAdmin(admin.ModelAdmin):
             super().save_model(request, obj, form, change)
 
     def editar(self, obj):
-        html = '<a href="/admin/presupuestos/presupuesto/{}" class="icon-block"><i class="fa fa-edit"></i></a>'.format(obj.pk)
+        html = '<a href="/admin/presupuestos/presupuesto/{}" class="icon-block"><i class="fa fa-edit"></i></a>'.format(
+            obj.pk)
         return mark_safe(html)
 
     def ver(self, obj):
-        html = '<a href="/admin/presupuestos/presupuesto_detail/{}" class="icon-block"><i class="fa fa-eye"></i></a>'.format(obj.pk)
+        html = '<a href="/admin/presupuestos/presupuesto_detail/{}" class="icon-block"><i class="fa fa-eye"></i></a>'.format(
+            obj.pk)
         return mark_safe(html)
 
     def cambiar_estado(self, obj):
@@ -99,21 +101,23 @@ class PresupuestoAdmin(admin.ModelAdmin):
         html += '<a href="/admin/presupuestos/presupuesto_materiales_report/%s" class="icon-block"> <i class="fa fa-file-excel-o" style="color:green; font-size: 1.73em"></i> MAT</a>' % obj.pk
         return mark_safe(html)
 
-    def cotizar_materiales(self, obj):
-        tipo = TiposDeCotizacion.MATERIAL
-        html = 'Solicitado'
-        solicitudes = Solicitud.objects.filter(presupuesto=obj).filter(tipo=TiposDeCotizacion.MATERIAL)
-        if not solicitudes:
-            html = f'<a href="/admin/cotizaciones/solicitud/add/?next=/admin/cotizaciones/solicitud/&presupuesto={obj.pk}&tipo={tipo}" class="icon-block">SOLICITAR</a>'
-        return mark_safe(html)
+    #TODO IMPLEMENTAR FUNCIONES DE COTIZACION
 
-    def cotizar_servicios(self, obj):
-        tipo = TiposDeCotizacion.SERVICIOS
-        html = 'Solicitado'
-        solicitudes = Solicitud.objects.filter(presupuesto=obj).filter(tipo=TiposDeCotizacion.SERVICIOS)
-        if not solicitudes:
-            html = f'<a href="/admin/cotizaciones/solicitud/add/?next=/admin/cotizaciones/solicitud/&presupuesto={obj.pk}&tipo={tipo}" class="icon-block">SOLICITAR</a>'
-        return mark_safe(html)
+    # def cotizar_materiales(self, obj):
+    #     tipo = TiposDeCotizacion.MATERIAL
+    #     html = 'Solicitado'
+    #     solicitudes = Solicitud.objects.filter(presupuesto=obj).filter(tipo=TiposDeCotizacion.MATERIAL)
+    #     if not solicitudes:
+    #         html = f'<a href="/admin/cotizaciones/solicitud/add/?next=/admin/cotizaciones/solicitud/&presupuesto={obj.pk}&tipo={tipo}" class="icon-block">SOLICITAR</a>'
+    #     return mark_safe(html)
+    #
+    # def cotizar_servicios(self, obj):
+    #     tipo = TiposDeCotizacion.SERVICIOS
+    #     html = 'Solicitado'
+    #     solicitudes = Solicitud.objects.filter(presupuesto=obj).filter(tipo=TiposDeCotizacion.SERVICIOS)
+    #     if not solicitudes:
+    #         html = f'<a href="/admin/cotizaciones/solicitud/add/?next=/admin/cotizaciones/solicitud/&presupuesto={obj.pk}&tipo={tipo}" class="icon-block">SOLICITAR</a>'
+    #     return mark_safe(html)
 
     def get_search_results(self, request, queryset, search_term):
         queryset, use_distinct = super().get_search_results(request, queryset, search_term)
