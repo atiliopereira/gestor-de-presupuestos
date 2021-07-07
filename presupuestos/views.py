@@ -4,7 +4,7 @@ from django.shortcuts import render, redirect
 from clientes.models import Cliente
 from items.models import Item
 from materiales.models import Material, ActualizacionDePreciosDeMateriales
-from presupuestos.models import Presupuesto, DetalleDePresupuesto
+from presupuestos.models import Presupuesto, DetalleDePresupuesto, AdicionalDePresupuesto
 from presupuestos.constants import EstadoPresupuestos
 from servicios.models import ActualizacionDePreciosDeServicios, Servicio
 
@@ -34,6 +34,7 @@ class PresupuestoDetailView(DetailView):
     def get_context_data(self, **kwargs):
         context = super(PresupuestoDetailView, self).get_context_data(**kwargs)
         context["detalles"] = DetalleDePresupuesto.objects.filter(presupuesto=self.object)
+        context["adicionales"] = AdicionalDePresupuesto.objects.filter(presupuesto=self.object)
         return context
 
 

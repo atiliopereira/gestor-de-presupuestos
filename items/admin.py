@@ -27,7 +27,7 @@ admin.site.register(Rubro, RubroAdmin)
 
 class ItemAdmin(admin.ModelAdmin):
     ordering = ("descripcion",)
-    list_display = ('editar', 'ver', "descripcion", "unidad_de_medida", "rubro")
+    list_display = ('editar', 'ver', "descripcion", "unidad_de_medida", "rubro", "ciudad_sin_precio")
     search_fields = ("descripcion", )
     autocomplete_fields = ("rubro",)
     inlines = (MaterialDeItemInlineAdmin, ServicioDeItemInlineAdmin)

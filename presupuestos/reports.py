@@ -9,7 +9,7 @@ from reportlab.pdfgen import canvas
 
 from items.models import MaterialDeItem, ServicioDeItem
 from materiales.models import get_precio_de_material, Material
-from presupuestos.models import Presupuesto, DetalleDePresupuesto
+from presupuestos.models import Presupuesto, DetalleDePresupuesto, AdicionalDePresupuesto
 from servicios.models import get_precio_de_servicio, Servicio
 from sistema.models import Usuario
 from tillner.globales import listview_to_excel, separar, truncate, number_to_right
@@ -63,6 +63,14 @@ def presupuesto_excel(request, id):
                 total_servicio
             ])
         lista_datos.append(["", "", "", "Total del item:", dp.subtotal])
+        lista_datos.append([])
+    for ap in AdicionalDePresupuesto.objects.filter(presupuesto=presupuesto):
+        lista_datos.append([
+            ap.descripcion,
+            ap.cantidad,
+            ap.unidad_de_medida.simbolo.lower(),
+        ])
+        lista_datos.append(["", "", "", "Total del item:", ap.subtotal])
         lista_datos.append([])
     lista_datos.append(["", "", "", "Total:", separar(int(presupuesto.total))])
     response = listview_to_excel(lista_datos, nombre_archivo, titulos)
@@ -172,6 +180,24 @@ def presupuesto_pdf(request, id):
             precio_item = f'{number_to_right(separar(int(float(dp.subtotal) * factor_de_margen)))}'
             px = 570 - stringWidth(precio_item, "Helvetica", 11)
             canvas.drawString(px, row, precio_item)
+
+        for ap in AdicionalDePresupuesto.objects.filter(presupuesto=presupuesto):
+            row -= 20
+            canvas.setFont("Helvetica-Bold", 12)
+            canvas.drawString(30, row,
+                              f'{ap.descripcion}: {ap.cantidad} {ap.unidad_de_medida.simbolo.lower()}')
+
+            row -= 15
+            canvas.setLineWidth(1)
+            canvas.line(30, row + 12, 570, row + 12)
+            canvas.setFont("Helvetica-Bold", 11)
+            canvas.drawString(400, row, f'Precio Item:')
+            canvas.setFont("Helvetica", 11)
+            precio_item = f'{number_to_right(separar(int(float(ap.subtotal) * factor_de_margen)))}'
+            px = 570 - stringWidth(precio_item, "Helvetica", 11)
+            canvas.drawString(px, row, precio_item)
+
+        row -= 15
         canvas.line(30, row - 10, 570, row - 10)
         canvas.line(30, row - 12, 570, row - 12)
         row -= 25
