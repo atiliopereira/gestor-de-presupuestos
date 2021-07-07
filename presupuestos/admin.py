@@ -1,10 +1,9 @@
 from django.contrib import admin
 from django.utils.safestring import mark_safe
 
-from cotizaciones.constants import TiposDeCotizacion
-from cotizaciones.models import Solicitud
-from presupuestos.forms import DetalleDePresupuestoForm, PresupuestoForm, PresupuestoSearchForm
-from presupuestos.models import DetalleDePresupuesto, Presupuesto
+from presupuestos.forms import DetalleDePresupuestoForm, PresupuestoForm, PresupuestoSearchForm, \
+    AdicionalDePresupuestoForm
+from presupuestos.models import DetalleDePresupuesto, Presupuesto, AdicionalDePresupuesto
 from presupuestos.models import get_siguiente_numero_de_presupuesto, get_siguiente_numero_de_revision
 from presupuestos.constants import EstadoPresupuestos
 from presupuestos.views import get_presupuestos_queryset
@@ -44,15 +43,26 @@ class DetalleDePresupuestoAdmin(admin.ModelAdmin):
 admin.site.register(DetalleDePresupuesto, DetalleDePresupuestoAdmin)
 
 
+class AdicionalDePresupuestoInline(admin.TabularInline):
+    model = AdicionalDePresupuesto
+    form = AdicionalDePresupuestoForm
+    extra = 0
+
+
 class PresupuestoAdmin(admin.ModelAdmin):
     list_display = ('editar', 'ver', 'fecha', 'numero_de_presupuesto', 'obra', 'cliente', 'estado', 'cambiar_estado',
                     'presupuesto', 'costeo',)
     ordering = ('-fecha',)
     search_fields = ('numero_de_presupuesto',)
-    inlines = (DetalleDePresupuestoInline,)
+    inlines = (DetalleDePresupuestoInline, AdicionalDePresupuestoInline)
     autocomplete_fields = ('cliente',)
     form = PresupuestoForm
     actions = None
+    fieldsets = (
+        (None, {'fields': ['fecha', 'cliente', 'obra', 'direccion', 'ciudad']}),
+        (None, {'fields': ['validez_del_presupuesto', 'observaciones']}),
+        (None, {'fields': ['total', ('margen_de_ganancia', 'total_con_ganancia')]}),
+    )
 
     class Media:
         js = ('//ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js', 'js/admin/presupuesto/presupuesto.js',)

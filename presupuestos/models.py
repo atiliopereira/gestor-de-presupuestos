@@ -7,7 +7,7 @@ from django.db import models
 
 from clientes.models import Cliente
 from items.models import Item, MaterialDeItem, ServicioDeItem
-from materiales.models import Material
+from materiales.models import Material, UnidadDeMedida
 from presupuestos.constants import EstadoPresupuestos
 from sistema.models import Ciudad
 
@@ -19,7 +19,8 @@ class Presupuesto(models.Model):
     obra = models.CharField(max_length=250, help_text="Nombre o Descripción")
     direccion = models.CharField(max_length=300, verbose_name="Dirección", blank=True, null=True)
     ciudad = models.ForeignKey(Ciudad, on_delete=models.PROTECT)
-    estado = models.CharField(max_length=3, choices=EstadoPresupuestos.ESTADOS, default=EstadoPresupuestos.PENDIENTE, editable=False)
+    estado = models.CharField(max_length=3, choices=EstadoPresupuestos.ESTADOS, default=EstadoPresupuestos.PENDIENTE,
+                              editable=False)
     total = models.DecimalField(max_digits=15, decimal_places=0, default=0)
     margen_de_ganancia = models.PositiveSmallIntegerField(default=0,
                                                          validators=[MinValueValidator(0), MaxValueValidator(100)],
@@ -36,7 +37,7 @@ class Presupuesto(models.Model):
 
         return: dict con el formato {m123: 10.5,}
             key: Inicia con 'm'  o 's', seguido por el pk del material o servicio
-            value: cantidad resultante entre la suma de multiplicar la cantidad en el presupuesto por el coeficiente
+            value: cantidad resultante de la suma de multiplicar la cantidad en el presupuesto por el coeficiente
             del item, las veces que aparezca el material (o servicio) en los diferentes items del presupuesto.
         """
 
@@ -60,11 +61,15 @@ class Presupuesto(models.Model):
                     result[clave] = valor_anterior + float(dp.cantidad) * si.coeficiente
         return result
 
-    def total_con_ganancia(self):
-        return float(self.total) * (1 + float(self.margen_de_ganancia/100))
+    @property
+    def total_mas_ganancia(self):
+        return float(self.total) * (1 + self.margen_de_ganancia/100)
 
 
 class DetalleDePresupuesto(models.Model):
+    class Meta:
+        verbose_name = "Item de presupuesto"
+        verbose_name_plural = "Items de presupuesto"
     presupuesto = models.ForeignKey(Presupuesto, on_delete=models.CASCADE)
     item = models.ForeignKey(Item, on_delete=models.PROTECT)
     cantidad = models.FloatField(default=1)
@@ -76,6 +81,21 @@ class DetalleDePresupuesto(models.Model):
         servicios = [[si.servicio, si.coeficiente * self.cantidad] for si in
                      ServicioDeItem.objects.filter(item=self.item)]
         return materiales, servicios
+
+
+class AdicionalDePresupuesto(models.Model):
+    class Meta:
+        verbose_name = "Adicional de presupuesto"
+        verbose_name_plural = "Adicionales de presupuesto"
+    presupuesto = models.ForeignKey(Presupuesto, on_delete=models.CASCADE)
+    descripcion = models.CharField(max_length=75, verbose_name="Descripción")
+    cantidad = models.FloatField(default=1)
+    unidad_de_medida = models.ForeignKey(UnidadDeMedida, on_delete=models.PROTECT)
+    precio_unitario = models.DecimalField(max_digits=15, decimal_places=0, default=0)
+
+    @property
+    def subtotal(self):
+        return float(self.cantidad) * float(self.precio_unitario)
 
 
 def get_siguiente_numero_de_presupuesto(user):

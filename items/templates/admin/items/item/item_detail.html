@@ -73,7 +73,7 @@
                 {% for material in materiales %}
                 <tr>
                     <td>
-                        <a href="/admin/materiales/material_detail/{{ material.pk|eliminar_separador_miles }}">{{ material.material.descripcion }}</a>
+                        <a href="/admin/materiales/material_detail/{{ material.material_id|eliminar_separador_miles }}">{{ material.material.descripcion }}</a>
                     </td>
                     <td style="padding-left: 5em">{{ material.coeficiente }}</td>
                 </tr>
@@ -93,9 +93,33 @@
                 {% for servicio in servicios %}
                 <tr>
                     <td>
-                        <a href="/admin/servicios/servicio_detail/{{ servicio.servicio.pk|eliminar_separador_miles }}">{{ servicio.servicio.descripcion }}</a>
+                        <a href="/admin/servicios/servicio_detail/{{ servicio.servicio_id|eliminar_separador_miles }}">{{ servicio.servicio.descripcion }}</a>
                     </td>
                     <td style="padding-left: 5em">{{ servicio.coeficiente }}</td>
+                </tr>
+                {% endfor %}
+            </table>
+        </div>
+    {% endif %}
+
+    <caption>
+        <h4 style="text-align:center">Precios</h4>
+    </caption>
+
+    {% if precios %}
+        <div class="w3-card-4" style="width:60%;margin-left:auto;margin-right:auto;">
+            <table style="width: 100%">
+                <tr style="background-color: lightgrey">
+                    <th style="width: 80%">Ciudad</th>
+                    <th>Precio</th>
+                </tr>
+
+                {% for precio in precios %}
+                <tr>
+                    <td>
+                        {{ precio.0 }}
+                    </td>
+                    <td style="padding-left: 5em">{{ precio.1 | floatformat:"0" | default_if_none:"&nbsp;" }}</td>
                 </tr>
                 {% endfor %}
             </table>

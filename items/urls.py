@@ -1,14 +1,14 @@
 from django.conf.urls import url
 
 from items.ajax import get_item
-from items.autocomplete import ItemAutocomplete
+from items.autocomplete import ItemCiudadAutocomplete
 from items.views import ItemDetailView
 
 
 urlpatterns = [
     url(
         r'^item-autocomplete/$',
-        ItemAutocomplete.as_view(),
+        ItemCiudadAutocomplete.as_view(),
         name='item-autocomplete',
     ),
     url('getitem/$', get_item),
