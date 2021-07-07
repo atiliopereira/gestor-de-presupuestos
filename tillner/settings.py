@@ -26,7 +26,7 @@ SECRET_KEY = 'k@^4a&-y5(*$887kz9y6+8ze+5i4yhbm@3nxo2t&1=%_&-0#@z'
 DEBUG = True
 
 ALLOWED_HOSTS = ['127.0.0.1', '0.0.0.0', 'localhost', 'ec2-18-221-85-216.us-east-2.compute.amazonaws.com',
-                 '18.221.85.216', 'tillner.dissoi.com']
+                 '18.221.85.216', 'construyaenlinea.dissoi.com']
 
 
 # Application definition
