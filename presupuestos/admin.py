@@ -1,14 +1,15 @@
 from django.contrib import admin
 from django.utils.safestring import mark_safe
 
-from presupuestos.forms import DetalleDePresupuestoForm, PresupuestoForm, PresupuestoSearchForm
-from presupuestos.models import DetalleDePresupuesto, Presupuesto
+from presupuestos.forms import DetalleDePresupuestoForm, PresupuestoForm, PresupuestoSearchForm, \
+    AdicionalDePresupuestoForm
+from presupuestos.models import DetalleDePresupuesto, Presupuesto, AdicionalDePresupuesto
 from presupuestos.models import get_siguiente_numero_de_presupuesto, get_siguiente_numero_de_revision
 from presupuestos.constants import EstadoPresupuestos
 from presupuestos.views import get_presupuestos_queryset
 
 
-class DetalleDePresupuestoInlineAdmin(admin.TabularInline):
+class DetalleDePresupuestoInline(admin.TabularInline):
     model = DetalleDePresupuesto
     form = DetalleDePresupuestoForm
 
@@ -18,15 +19,50 @@ class DetalleDePresupuestoInlineAdmin(admin.TabularInline):
         else:
             return 1
 
+    def get_formset(self, request, obj=None, **kwargs):
+        """
+        Override the formset function in order to remove the add and change buttons beside the foreign key pull-down
+        menus in the inline.
+        """
+        formset = super(DetalleDePresupuestoInline, self).get_formset(request, obj, **kwargs)
+        form = formset.form
+        widget = form.base_fields['item'].widget
+        widget.can_add_related = False
+        widget.can_change_related = False
+        return formset
+
+
+# This registration is needed in order to use autocomplete with the item model
+class DetalleDePresupuestoAdmin(admin.ModelAdmin):
+    list_display = ('presupuesto', 'item', 'cantidad', 'subtotal')
+    search_fields = ('presupuesto', 'item')
+    autocomplete_fields = ('presupuesto', 'item')
+    actions = None
+
+
+admin.site.register(DetalleDePresupuesto, DetalleDePresupuestoAdmin)
+
+
+class AdicionalDePresupuestoInline(admin.TabularInline):
+    model = AdicionalDePresupuesto
+    form = AdicionalDePresupuestoForm
+    extra = 0
+
 
 class PresupuestoAdmin(admin.ModelAdmin):
-    list_display = ('editar', 'ver', 'fecha', 'numero_de_presupuesto', 'obra', 'cliente', 'estado', 'imprimir')
-    ordering = ('-fecha', )
-    search_fields = ('numero_de_presupuesto', )
-    inlines = (DetalleDePresupuestoInlineAdmin, )
-    autocomplete_fields = ('cliente', )
+    list_display = ('editar', 'ver', 'fecha', 'numero_de_presupuesto', 'obra', 'cliente', 'estado', 'cambiar_estado',
+                    'presupuesto', 'costeo',)
+    ordering = ('-fecha',)
+    search_fields = ('numero_de_presupuesto',)
+    inlines = (DetalleDePresupuestoInline, AdicionalDePresupuestoInline)
+    autocomplete_fields = ('cliente',)
     form = PresupuestoForm
     actions = None
+    fieldsets = (
+        (None, {'fields': ['fecha', 'cliente', 'obra', 'direccion', 'ciudad']}),
+        (None, {'fields': ['validez_del_presupuesto', 'observaciones']}),
+        (None, {'fields': ['total', ('margen_de_ganancia', 'total_con_ganancia')]}),
+    )
 
     class Media:
         js = ('//ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js', 'js/admin/presupuesto/presupuesto.js',)
@@ -49,16 +85,49 @@ class PresupuestoAdmin(admin.ModelAdmin):
             super().save_model(request, obj, form, change)
 
     def editar(self, obj):
-        html = '<a href="/admin/presupuestos/presupuesto/{}" class="icon-block"><i class="fa fa-edit"></i></a>'.format(obj.pk)
+        html = '<a href="/admin/presupuestos/presupuesto/{}" class="icon-block"><i class="fa fa-edit"></i></a>'.format(
+            obj.pk)
         return mark_safe(html)
 
     def ver(self, obj):
-        html = '<a href="/admin/presupuestos/presupuesto_detail/{}" class="icon-block"><i class="fa fa-eye"></i></a>'.format(obj.pk)
+        html = '<a href="/admin/presupuestos/presupuesto_detail/{}" class="icon-block"><i class="fa fa-eye"></i></a>'.format(
+            obj.pk)
         return mark_safe(html)
 
-    def imprimir(self, obj):
-        html = '<a href="/admin/presupuestos/presupuesto_report/%s" class="icon-block"> <i class="fa fa-file-excel-o" style="color:green; font-size: 1.73em"></i></a>' % obj.pk
+    def cambiar_estado(self, obj):
+        if obj.estado == EstadoPresupuestos.PENDIENTE or obj.estado == EstadoPresupuestos.ENVIADO:
+            html = f'<a href="/admin/presupuestos/cambiar_estado_presupuesto/{obj.pk}" class="icon-block">CAMBIAR ESTADO</a>'
+        else:
+            html = ""
         return mark_safe(html)
+
+    def presupuesto(self, obj):
+        html = '<a href="/admin/presupuestos/presupuesto_pdf/%s" class="icon-block"> <i class="fa fa-file-pdf-o" style="color:red; font-size: 1.73em"></i></a>' % obj.pk
+        html += '<a href="/admin/presupuestos/presupuesto_excel/%s" class="icon-block"> <i class="fa fa-file-excel-o" style="color:green; font-size: 1.73em; padding-left:10px"></i></a>' % obj.pk
+        return mark_safe(html)
+
+    def costeo(self, obj):
+        html = '<a href="/admin/presupuestos/presupuesto_servicios_report/%s" class="icon-block"> <i class="fa fa-file-excel-o" style="color:green; font-size: 1.73em"></i> MDO</a>' % obj.pk
+        html += '<a href="/admin/presupuestos/presupuesto_materiales_report/%s" class="icon-block"> <i class="fa fa-file-excel-o" style="color:green; font-size: 1.73em"></i> MAT</a>' % obj.pk
+        return mark_safe(html)
+
+    #TODO IMPLEMENTAR FUNCIONES DE COTIZACION
+
+    # def cotizar_materiales(self, obj):
+    #     tipo = TiposDeCotizacion.MATERIAL
+    #     html = 'Solicitado'
+    #     solicitudes = Solicitud.objects.filter(presupuesto=obj).filter(tipo=TiposDeCotizacion.MATERIAL)
+    #     if not solicitudes:
+    #         html = f'<a href="/admin/cotizaciones/solicitud/add/?next=/admin/cotizaciones/solicitud/&presupuesto={obj.pk}&tipo={tipo}" class="icon-block">SOLICITAR</a>'
+    #     return mark_safe(html)
+    #
+    # def cotizar_servicios(self, obj):
+    #     tipo = TiposDeCotizacion.SERVICIOS
+    #     html = 'Solicitado'
+    #     solicitudes = Solicitud.objects.filter(presupuesto=obj).filter(tipo=TiposDeCotizacion.SERVICIOS)
+    #     if not solicitudes:
+    #         html = f'<a href="/admin/cotizaciones/solicitud/add/?next=/admin/cotizaciones/solicitud/&presupuesto={obj.pk}&tipo={tipo}" class="icon-block">SOLICITAR</a>'
+    #     return mark_safe(html)
 
     def get_search_results(self, request, queryset, search_term):
         queryset, use_distinct = super().get_search_results(request, queryset, search_term)

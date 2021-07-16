@@ -1,0 +1,26 @@
+{% extends "admin/change_list.html" %}
+{% load i18n admin_urls static admin_list %}
+{% load cotizacion_tags %}
+
+{% block search %}
+    {% solicitud_search_form cl %}
+{% endblock %}
+
+{% block object-tools %}
+    <ul class="object-tools">
+        {% block object-tools-items %}
+            {% if has_add_permission %}
+             <li>
+                <a href="/admin/cotizaciones/solicitud/add/?next=/admin/cotizaciones/solicitud/&tipo=M" class="addlink">
+                    Cotizar materiales
+                </a>
+            </li>
+            <li>
+                <a href="/admin/cotizaciones/solicitud/add/?next=/admin/cotizaciones/solicitud/&tipo=S" class="addlink">
+                    Cotizar mano de obra
+                </a>
+            </li>
+            {% endif %}
+        {% endblock %}
+    </ul>
+{% endblock %}

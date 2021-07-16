@@ -2,7 +2,9 @@ import datetime
 import os
 
 import xlrd
-from django.db import models
+from django.db import models, transaction
+
+from sistema.models import Ciudad, get_ciudad_default
 
 
 class UnidadDeMedida(models.Model):
@@ -43,6 +45,14 @@ class CategoriaDeMaterial(models.Model):
     get_categoria_principal.short_description = "Categoría Principal"
 
 
+def get_default_cat_de_material():
+    qs = CategoriaDeMaterial.objects.filter(nombre='Sin categoría')
+    if qs.exists():
+        return qs.first().pk
+    else:
+        return CategoriaDeMaterial.objects.create(nombre='Sin categoría').pk
+
+
 class Material(models.Model):
     class Meta:
         verbose_name = "material"
@@ -51,72 +61,118 @@ class Material(models.Model):
     codigo = models.CharField(max_length=50, verbose_name="código")
     descripcion = models.CharField(max_length=150, verbose_name="descripción")
     unidad_de_medida = models.ForeignKey(UnidadDeMedida, on_delete=models.PROTECT)
-    categoria = models.ForeignKey(CategoriaDeMaterial, on_delete=models.PROTECT, verbose_name="categoría")
+    categoria = models.ForeignKey(CategoriaDeMaterial, on_delete=models.PROTECT, verbose_name="categoría",
+                                  default=get_default_cat_de_material)
 
     def __str__(self):
-        return f'{self.descripcion} ({self.categoria.nombre})'
-
-    def precio_actual(self):
-        precio_mat = get_precio_de_material(material=self)
-        return precio_mat.precio if precio_mat else "No establecido"
+        return f'{self.codigo} - {self.descripcion} ({self.categoria.nombre})'
 
 
 class PrecioDeMaterial(models.Model):
+    class Meta:
+        verbose_name_plural = "Precios de materiales"
     material = models.ForeignKey(Material, on_delete=models.CASCADE)
+    ciudad = models.ForeignKey(Ciudad, on_delete=models.PROTECT, default=get_ciudad_default)
     precio = models.DecimalField(max_digits=15, decimal_places=0)
     inicio_de_vigencia = models.DateField(default=datetime.date.today)
     fin_de_vigencia = models.DateField(null=True, blank=True, editable=False)
 
+    def save(self, *args, **kwargs):
+        super(PrecioDeMaterial, self).save(*args, **kwargs)
+        registrar_fecha_de_fin_de_vigencia(material=self.material, ciudad=self.ciudad,
+                                           inicio_de_vigencia=self.inicio_de_vigencia, self_pk=self.pk)
+
+
+def registrar_fecha_de_fin_de_vigencia(material, ciudad, inicio_de_vigencia, self_pk):
+    precios_anteriores = [precio for precio in
+                          PrecioDeMaterial.objects.exclude(pk=self_pk).filter(material=material).filter(
+                              ciudad=ciudad).order_by('-inicio_de_vigencia') if
+                          not precio.fin_de_vigencia and precio.inicio_de_vigencia < inicio_de_vigencia]
+    if precios_anteriores:
+        precio_anterior = precios_anteriores[0]
+        precio_anterior.fin_de_vigencia = inicio_de_vigencia - datetime.timedelta(days=1)
+        precio_anterior.save()
+
 
 def get_precio_de_material(**kwargs):
+    """"
+    La funcion recibe el material, la ciudad y la fecha.
+    :returns un valor del tipo PrecioDeMaterial con la fecha de inicio de vigencia mas reciente
+    """
     material = kwargs.get("material")
-    if not material:
-        return None
-    else:
+    ciudad = kwargs.get("ciudad")
+
+    if ciudad and material:
         fecha = kwargs.get("fecha") if 'fecha' in kwargs else datetime.date.today()
-        precios = PrecioDeMaterial.objects.filter(material=material).order_by('-inicio_de_vigencia')
-        for precio in precios:
-            if precio.inicio_de_vigencia <= fecha:
-                return precio
+        precios = [precio for precio in
+                   PrecioDeMaterial.objects.filter(material=material).filter(ciudad=ciudad).order_by(
+                       '-inicio_de_vigencia') if not precio.fin_de_vigencia]
+        if precios:
+            for p in precios:
+                if p.inicio_de_vigencia <= fecha:
+                    return p
+        else:
+            #En caso de No encontrar precios registrado en la ciudad indicada, busca en todas las ciudades
+            precios = [precio for precio in
+                       PrecioDeMaterial.objects.filter(material=material).order_by(
+                           '-inicio_de_vigencia') if not precio.fin_de_vigencia]
+            if precios:
+                for p in precios:
+                    if p.inicio_de_vigencia <= fecha:
+                        return p
 
 
-def get_file_path(instance):
-    file_path = f'archivos/planilla_de_precios_{instance.fecha}'
-    return file_path
-
-
-def actualizar_precios(actualizacion_de_precios):
-    extension = os.path.splitext(actualizacion_de_precios.archivo.path)[-1].lower()
-    if extension == ".xls" or extension == ".xlsx":
-        doc = actualizacion_de_precios.archivo.path
-        try:
-            wb = xlrd.open_workbook(doc)
-            sheet = wb.sheet_by_index(0)
-            sheet.cell_value(0, 0)
-            actualizados = []
-            no_existen = []
-            for row in range(1, sheet.nrows):
-                material = Material.objects.filter(codigo=sheet.row_values(row)[0]).first()
-                if material:
-                    inicio_de_vigencia = xlrd.xldate_as_datetime(sheet.row_values(row)[4], 0).date()
-                    PrecioDeMaterial.objects.create(material=material, precio=sheet.row_values(row)[2],
-                                                    inicio_de_vigencia=inicio_de_vigencia)
-                    actualizados.append(material.codigo)
-                else:
-                    no_existen.append(sheet.row_values(row)[0])
-            return actualizados, no_existen
-        except Exception as e:
-            print(f'Error: {e}')
-            return False
-
-
-class ActualizacionDePrecios(models.Model):
+class ActualizacionDePreciosDeMateriales(models.Model):
     class Meta:
         verbose_name = "actualización de precios"
         verbose_name_plural = "actualizaciones de precios"
     fecha = models.DateField(default=datetime.date.today)
     archivo = models.FileField(upload_to='planillas_de_precios', null=True, blank=True)
+    error = models.CharField(max_length=200, blank=True, null=True, editable=False)
+    lineas = models.PositiveSmallIntegerField(default=0, editable=False)
+    creados = models.PositiveSmallIntegerField(default=0, editable=False)
+    actualizados = models.PositiveSmallIntegerField(default=0, editable=False)
 
-    def save(self, *args, **kwargs):
-        super(ActualizacionDePrecios, self).save(*args, **kwargs)
-        actualizar_precios(self)
+
+def actualizar_precios_de_materiales(actualizacion):
+    error = ''
+    cant_lineas = 0
+    creados = []
+    actualizados = []
+    row = 0
+    extension = os.path.splitext(actualizacion.archivo.path)[-1].lower()
+    if extension == ".xls":
+        doc = actualizacion.archivo.path
+        try:
+            wb = xlrd.open_workbook(doc)
+            sheet = wb.sheet_by_index(0)
+            sheet.cell_value(0, 0)
+            cant_lineas = len(range(1, sheet.nrows))
+            for row in range(1, sheet.nrows):
+                codigo = sheet.row_values(row)[0]
+                descripcion = sheet.row_values(row)[1]
+                precio = sheet.row_values(row)[2]
+                ciudad = Ciudad.objects.get(pk=sheet.row_values(row)[4])
+                unidad_de_medida = UnidadDeMedida.objects.get(pk=sheet.row_values(row)[5])
+                inicio_de_vigencia = xlrd.xldate_as_datetime(sheet.row_values(row)[6], 0).date()
+
+                material = Material.objects.filter(codigo=codigo).first()
+                if material:
+                    actualizados.append(material)
+                else:
+                    material = Material.objects.create(codigo=codigo, descripcion=descripcion,
+                                                       unidad_de_medida=unidad_de_medida)
+                    creados.append(material)
+                with transaction.atomic():
+                    PrecioDeMaterial.objects.create(material=material, ciudad=ciudad, precio=precio,
+                                                    inicio_de_vigencia=inicio_de_vigencia)
+        except Exception as e:
+            if row != 0:
+                error = f'Error en fila: {int(row) + 2}: {e}'
+            else:
+                error = e
+    actualizacion.error = error
+    actualizacion.lineas = cant_lineas
+    actualizacion.creados = len(creados)
+    actualizacion.actualizados = len(actualizados)
+    actualizacion.save(update_fields=['error', 'lineas', 'creados', 'actualizados'])

@@ -11,7 +11,7 @@
 <!--Chart js-->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.8.0/Chart.min.js" integrity="sha256-Uv9BNBucvCPipKQ2NS9wYpJmi8DTOEfTA/nH2aoJALw=" crossorigin="anonymous"></script>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.8.0/Chart.min.css" integrity="sha256-aa0xaJgmK/X74WM224KMQeNQC2xYKwlAt08oZqjeF0E=" crossorigin="anonymous" />
-
+<link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
 {% block head %}
 
 
@@ -43,28 +43,28 @@
         {% block branding %}{% endblock %}
         </div>
         {% block usertools %}
-        {% if has_permission %}
-        <div id="user-tools">
-            {% block welcome-msg %}
+            {% if has_permission %}
+                <div id="user-tools">
+                    {% block welcome-msg %}
 
-                {% trans 'Welcome,' %}
-                <strong>{% firstof user.get_short_name user.get_username %}</strong>.
+                        {% trans 'Welcome,' %}
+                        <strong>{% firstof user.get_short_name user.get_username %}</strong>.
 
-            {% endblock %}
-            {% block userlinks %}
-                {% if user.is_active and user.is_staff %}
-                    {% url 'django-admindocs-docroot' as docsroot %}
-                    {% if docsroot %}
-                        <a href="{{ docsroot }}">{% trans 'Documentation' %}</a> /
-                    {% endif %}
-                {% endif %}
-                {% if user.has_usable_password %}
-                <a href="{% url 'admin:password_change' %}">{% trans 'Change password' %}</a> /
-                {% endif %}
-                <a href="{% url 'admin:logout' %}">{% trans 'Log out' %}</a>
-            {% endblock %}
-        </div>
-        {% endif %}
+                    {% endblock %}
+                    {% block userlinks %}
+                        {% if user.is_active and user.is_staff %}
+                            {% url 'django-admindocs-docroot' as docsroot %}
+                            {% if docsroot %}
+                                <a href="{{ docsroot }}">{% trans 'Documentation' %}</a> /
+                            {% endif %}
+                        {% endif %}
+                        {% if user.has_usable_password %}
+                        <a href="{% url 'admin:password_change' %}">{% trans 'Change password' %}</a> /
+                        {% endif %}
+                        <a href="{% url 'admin:logout' %}">{% trans 'Log out' %}</a>
+                    {% endblock %}
+                </div>
+            {% endif %}
         {% endblock %}
         {% block nav-global %}{% endblock %}
     </div>

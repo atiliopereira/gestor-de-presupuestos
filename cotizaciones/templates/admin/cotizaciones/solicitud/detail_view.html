@@ -1,0 +1,129 @@
+{% extends "admin/base_site.html" %}
+{% load presupuesto_tags %}
+
+{% block extrastyle %}
+    <link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
+{% endblock %}
+
+{% block content %}
+    <style>
+        .w3-card-4 {
+          margin-bottom: 1%;
+        }
+        table {
+            width:100%;
+        }
+        tbody{
+            width: 100%;
+            display: table;
+        }
+        .label {
+            color: white;
+            padding: 8px;
+            font-weight: bold;
+            font-size: x-large;
+            border-radius: 5px;
+        }
+    </style>
+    <h1 style="text-align:center; color: black">Solicitud de cotización Nro. {{ object.pk }}
+        {% if object.estado == 'vi' %} <span class="label" style="background-color: #2196F3;">Vigente</span>
+        {% elif object.estado == 'co' %} <span class="label" style="background-color: #4CAF50;">Concretada</span>
+        {% elif object.estado == 'ca' %} <span class="label" style="background-color: #f44336;">Cancelada</span>
+        {% endif %}
+    </h1>
+
+    <div class="w3-card-4" style="width:60%;margin-left:auto;margin-right:auto;">
+        <header class="w3-container w3-light-grey">
+          <h4>Datos de la solicitud</h4>
+        </header>
+        <div class="w3-container">
+          <table>
+              <tbody>
+                <tr>
+                    <th scope="row"> Fecha de solicitud </th>
+                    <td> {{ object.fecha }} </td>
+                </tr>
+
+                <tr>
+                    <th scope="row"> Vencimiento </th>
+                    <td> {{ object.vencimiento }} </td>
+                </tr>
+
+                {% if object.presupuesto.ciudad %}
+                    <tr>
+                        <th scope="row"> Ciudad </th>
+                        <td> {{ object.presupuesto.ciudad.nombre }} </td>
+                    </tr>
+                {% endif %}
+
+                    <tr>
+                        <th scope="row"> Comentarios </th>
+                        {% if object.comentarios %}
+                            <td> {{ object.comentarios }} </td>
+                        {% else %}
+                            <td>
+                                Sin comentarios adicionales.
+                            </td>
+                    </tr>
+                {% endif %}
+              </tbody>
+          </table>
+        </div>
+    </div>
+
+
+    <caption>
+        <h4 style="text-align:center">
+            {% if object.tipo == 'M' %}
+                Materiales
+            {% else %}
+                Servicios
+            {% endif %}
+        </h4>
+    </caption>
+
+    {% if materiales %}
+        <div class="w3-card-4" style="width:60%;margin-left:auto;margin-right:auto;">
+            <table style="width: 100%">
+                    <tr style="background-color: lightgrey">
+                        <th>Descripción</th>
+                        <th style="text-align: right">Cantidad</th>
+                        <th>Unidad</th>
+                    </tr>
+
+                    {% for detalle in materiales %}
+                    <tr>
+                        <td>{{ detalle.material.descripcion }} </td>
+                        <td style="text-align: right">{{ detalle.cantidad | floatformat:"0" | default_if_none:"&nbsp;" }}</td>
+                        <td>{{ detalle.material.unidad_de_medida.simbolo }}</td>
+                    </tr>
+                    {% endfor %}
+
+            </table>
+        </div>
+    {% endif %}
+
+    {% if servicios %}
+        <div class="w3-card-4" style="width:60%;margin-left:auto;margin-right:auto;">
+            <table style="width: 100%">
+                    <tr style="background-color: lightgrey">
+                        <th>Descripción</th>
+                        <th style="text-align: right">Cantidad</th>
+                        <th>Unidad</th>
+                    </tr>
+
+                    {% for detalle in servicios %}
+                    <tr>
+                        <td>{{ detalle.servicio.descripcion }} </td>
+                        <td style="text-align: right">{{ detalle.cantidad | floatformat:"0" | default_if_none:"&nbsp;" }}</td>
+                        <td>{{ detalle.servicio.unidad_de_medida.simbolo }}</td>
+                    </tr>
+                    {% endfor %}
+            </table>
+        </div>
+    {% endif %}
+
+    <br><br>
+    <button type="button" class="btn btn-primary" onclick="window.history.back(); return false;">Volver</button>
+
+{% endblock %}

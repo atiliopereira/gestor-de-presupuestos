@@ -1,0 +1,71 @@
+{% extends "admin/base_site.html" %}
+
+{% block extrastyle %}
+    <link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
+{% endblock %}
+
+{% block content %}
+    <style>
+        .w3-card-4 {
+          margin-bottom: 1%;
+        }
+        table {
+            width:100%;
+        }
+        tbody{
+            width: 100%;
+            display: table;
+        }
+        .label {
+            color: white;
+            padding: 8px;
+            font-weight: bold;
+            font-size: x-large;
+            border-radius: 5px;
+        }
+    </style>
+    <h1 style="text-align:center; color: black">{{ object.fecha }}
+        {% if object.error %} <span class="label" style="background-color: #f44336;">Error</span>
+        {% endif %}</h1>
+    <div class="w3-card-4" style="width:60%;margin-left:auto;margin-right:auto;">
+        <header class="w3-container w3-light-grey">
+          <h4>Detalles de la actualización</h4>
+        </header>
+        <div class="w3-container">
+          <table>
+              <tbody>
+                <tr>
+                    <th scope="row"> Nombre del archivo </th>
+                    <td> {{ object.archivo.name }} </td>
+                </tr>
+                <tr>
+                    <th scope="row"> Error </th>
+                    <td>
+                        {% if object.error %}
+                            {{ object.error }}
+                        {% else %}
+                            No se encontraron errores en la carga
+                        {% endif %}
+                    </td>
+                </tr>
+                <tr>
+                    <th scope="row"> Cantidad de líneas </th>
+                    <td> {{ object.lineas }} </td>
+                </tr>
+                <tr>
+                    <th scope="row"> Servicios creados </th>
+                    <td> {{ object.creados }} </td>
+                </tr>
+                <tr>
+                    <th scope="row"> Precios actualizados </th>
+                    <td> {{ object.actualizados }} </td>
+                </tr>
+
+              </tbody>
+          </table>
+        </div>
+    </div>
+
+    <button type="button" class="btn btn-primary" onclick="window.history.back(); return false;">Volver</button>
+
+{% endblock %}

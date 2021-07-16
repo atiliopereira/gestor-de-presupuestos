@@ -1,0 +1,101 @@
+{% extends "admin/base_site.html" %}
+
+{% block breadcrumbs %}
+
+    <div class="breadcrumbs">
+        <a href="{% url 'admin:index' %}">Inicio</a>
+        &rsaquo; <a href="{% url 'admin:app_list' 'servicios' %}">Servicios</a>
+        &rsaquo; <a href="/admin/servicios/servicio">Lista de servicios</a>
+        &rsaquo; Detalle de servicio
+    </div>
+
+{% endblock %}
+
+{% block extrastyle %}
+    <link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
+{% endblock %}
+
+{% block content %}
+    <style>
+        .w3-card-4 {
+          margin-bottom: 1%;
+        }
+        table {
+            width:100%;
+        }
+        tbody{
+            width: 100%;
+            display: table;
+        }
+        .label {
+            color: white;
+            padding: 8px;
+            font-weight: bold;
+            font-size: x-large;
+            border-radius: 5px;
+        }
+    </style>
+    <style>
+        th {
+            text-align: center;
+            background-color: #CCC;
+            border: 1px solid #AAA;
+            vertical-align: middle;
+            font-size: 1.2em;
+        }
+
+        td {
+            font-size: 1.2em;
+        }
+
+    </style>
+    <div style="width:30%;margin-left:auto;margin-right:auto;">
+        <table>
+            <tr>
+                <td>
+                    <h1 style="text-align:left; color: black">{{ object.descripcion }}</h1>
+                </td>
+            </tr>
+        </table>
+    </div>
+
+
+    <caption>
+        <h4 style="text-align:center">Historial de precios</h4>
+    </caption>
+    {% if precios %}
+        {% for ciudad in ciudades %}
+            <caption><h6 style="text-align:left; padding-left:20%">{{ ciudad.nombre }}</h6></caption>
+            <div id="det-mat" class="w3-card-4" style="width:60%;margin-left:auto;margin-right:auto;">
+            <table style="width: 100%">
+                <tr>
+                    <th colspan="2">Vigencia</th>
+                    <th rowspan="2">Precio</th>
+                </tr>
+                <tr>
+                    <th>Inicio</th>
+                    <th>Fin</th>
+                </tr>
+
+                {% for precio in precios %}
+                    {% if precio.ciudad == ciudad %}
+                        <tr>
+                            <td style="text-align: center">{{ precio.inicio_de_vigencia|date:"d/m/Y" }}</td>
+                            <td style="text-align: center">{{ precio.fin_de_vigencia|date:"d/m/Y" }}</td>
+                            <td style="text-align: right">{{ precio.precio }}</td>
+                        </tr>
+                    {% endif %}
+                {% endfor %}
+            </table>
+        </div>
+        {% endfor %}
+    {% else %}
+        <div id="det-mat" class="w3-card-4" style="width:60%;margin-left:auto;margin-right:auto;">
+            <p style="text-align: center; padding: 10px">El servicio aún no tiene ningún precio registrado.</p>
+        </div>
+
+    {% endif %}
+
+    <button type="button" class="btn btn-primary" onclick="window.history.back(); return false;">Volver</button>
+
+{% endblock %}

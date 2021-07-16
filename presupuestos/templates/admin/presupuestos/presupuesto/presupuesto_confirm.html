@@ -1,0 +1,54 @@
+{% extends "admin/base_site.html" %}
+{% block breadcrumbs %}
+
+    <div class="breadcrumbs">
+        <a href="{% url 'admin:index' %}">Inicio</a>
+        &rsaquo; <a href="{% url 'admin:app_list' 'presupuestos' %}">Presupuestos</a>
+        &rsaquo; <a href="/admin/presupuestos/presupuesto">Presupuesto</a>
+        &rsaquo; Confirmar acción
+    </div>
+
+{% endblock %}
+{% block content %}
+    <style>
+        .card {
+          box-shadow: 0 4px 8px 0 rgba(0,0,0,0.2);
+          transition: 0.3s;
+          width: 15%;
+          align-content: center;
+        }
+
+        .card:hover {
+          box-shadow: 0 8px 16px 0 rgba(0,0,0,0.2);
+        }
+
+        .container {
+          padding: 2px 16px;
+        }
+    </style>
+
+    <div style="text-align: center"> 
+	    <form action="" method="post" style="align-content: center">{% csrf_token %}
+		    <h1>
+                El presupuesto <strong>{{ numero }}</strong> cambiará al estado:
+                {% if ya_enviado %}
+                    <select name="nuevo_estado">
+                        <option value="APROBADO">APROBADO</option>
+                        <option value="RECHAZADO">RECHAZADO</option>
+                    </select>
+                {% else %}
+                    <strong>ENVIADO</strong>
+                {% endif %} 
+            </h1>
+            <div >
+			    <h2>{{ mensaje }}</h2>
+                <h2> <img src="/static/img/warning-sign_26a0.png" height="30"> {{ advertencia }} <img src="/static/img/warning-sign_26a0.png" height="30"></h2>
+			    <br>
+                <div class="container">
+                    <button type="submit" class="card" style="background-color: #d9534f; color: white; font-size: x-large">Confirmar</button>
+                    <button type="button" onclick="window.history.back(); return false;" class="card" style="background-color:#f0ad4e; color: white; font-size: x-large">Volver</button>
+                </div>
+		    </div>
+	    </form>
+    </div>
+{% endblock %}
